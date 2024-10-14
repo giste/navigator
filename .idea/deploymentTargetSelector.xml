@@ -38,6 +38,9 @@
       <SelectionState runConfigName="NavigationLandscapePreview - Tab Active 3">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="MainActivity">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

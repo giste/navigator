@@ -44,12 +44,10 @@ fun NavigationLandscapePreview() {
 }
 
 @Composable
-fun NavigationLandscape() {
-//    val activity = LocalContext.current as Activity
-//    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+fun NavigationLandscape(modifier: Modifier = Modifier) {
     val padding = 4.dp
 
-    Row(modifier = Modifier.fillMaxSize()) {
+    Row(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .weight(2f)
