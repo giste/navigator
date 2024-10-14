@@ -46,7 +46,7 @@ import kotlin.math.sqrt
 @Preview(
     showBackground = true,
     name = "TAB Active 3",
-    device = "spec:id=reference_tablet,shape=Normal,width=1920,height=1200,unit=px,dpi=283"
+    device = "spec:width=1920px,height=1200px,dpi=283"
 )
 @Composable
 fun PolygonPreview() {
@@ -65,7 +65,6 @@ fun Polygon() {
     val density = dm.density
     val xdpi = dm.xdpi
     val ydpi = dm.ydpi
-    val scaledDensity = dm.scaledDensity
 
     val widthInch = widthPixels.toFloat() / xdpi
     val heightInch = heightPixels.toFloat() / ydpi
@@ -86,7 +85,6 @@ fun Polygon() {
         Text(text = "density = $density", style = style)
         Text(text = "xdpi = $xdpi", style = style)
         Text(text = "ydpi = $ydpi", style = style)
-        Text(text = "scaledDensity = $scaledDensity", style = style)
         Text(text = "dpWidth = ${widthPixels.toFloat() / density}", style = style)
         Text(text = "dpHeight = ${heightPixels.toFloat() / density}", style = style)
         Text(text = "diagonalInch = $diagonalInch", style = style)
