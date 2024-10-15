@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,7 +72,7 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .weight(4f)
                     .fillMaxWidth()
-                    .border(2.dp, Color.DarkGray, RoundedCornerShape(8.dp))
+                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
             ) {
                 Map()
             }
@@ -88,7 +87,7 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .weight(9f)
                     .fillMaxWidth()
-                    .border(2.dp, Color.DarkGray, RoundedCornerShape(8.dp))
+                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
             ) {
                 Roadbook()
             }
