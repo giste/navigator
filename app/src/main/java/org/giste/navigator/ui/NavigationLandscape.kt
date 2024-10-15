@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,14 +54,11 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
                 .weight(2f)
                 .fillMaxHeight()
                 .padding(padding)
-                .border(2.dp, Color.Blue, RoundedCornerShape(10.dp))
         ) {
             Row(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    //.padding(padding)
-                    .border(2.dp, Color.Green, RoundedCornerShape(10.dp))
             ) {
                 DistanceTotal("1.234,56")
             }
@@ -68,8 +66,6 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    //.padding(padding)
-                    .border(2.dp, Color.Green, RoundedCornerShape(10.dp))
             ) {
                 DistancePartial("789,01")
             }
@@ -77,8 +73,7 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .weight(4f)
                     .fillMaxWidth()
-                    //.padding(padding)
-                    .border(2.dp, Color.Green, RoundedCornerShape(10.dp))
+                    .border(2.dp, Color.DarkGray, RoundedCornerShape(8.dp))
             ) {
                 Map()
             }
@@ -88,14 +83,12 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
                 .weight(5f)
                 .fillMaxHeight()
                 .padding(padding)
-                .border(2.dp, Color.Blue, RoundedCornerShape(10.dp))
         ) {
             Row(
                 modifier = Modifier
                     .weight(9f)
                     .fillMaxWidth()
-                    //.padding(padding)
-                    .border(2.dp, Color.Green, RoundedCornerShape(10.dp))
+                    .border(2.dp, Color.DarkGray, RoundedCornerShape(8.dp))
             ) {
                 Roadbook()
             }
@@ -105,8 +98,6 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    //.padding(padding)
-                    .border(2.dp, Color.Green, RoundedCornerShape(10.dp))
             ) {
                 CommandBar()
             }
@@ -123,7 +114,6 @@ fun DistanceTotal(distance: String) {
         modifier = Modifier
             .fillMaxSize()
             .wrapContentHeight()
-            .border(2.dp, Color.Red, RoundedCornerShape(10.dp))
     )
 }
 
@@ -136,7 +126,6 @@ fun DistancePartial(distance: String) {
         modifier = Modifier
             .fillMaxSize()
             .wrapContentHeight()
-            .border(2.dp, Color.Red, RoundedCornerShape(10.dp))
     )
 }
 
@@ -161,7 +150,6 @@ fun Roadbook() {
         modifier = Modifier
             .fillMaxSize()
             .wrapContentHeight()
-            .border(2.dp, Color.Red, RoundedCornerShape(10.dp))
     )
 }
 
@@ -198,6 +186,12 @@ fun CommandBar() {
                 contentDescription = "Load roadbook"
             )
         }
+        CommandBarColumn (modifier = Modifier.weight(1f)) {
+            CommandBarButton(
+                icon = Icons.Default.Settings,
+                contentDescription = "Settings"
+            )
+        }
     }
 }
 
@@ -223,7 +217,6 @@ fun CommandBarButton(
         onClick = { },
         modifier = modifier
             .fillMaxSize()
-            .border(2.dp, Color.Red, RoundedCornerShape(10.dp)),
     ) {
         Icon(
             imageVector = icon,
