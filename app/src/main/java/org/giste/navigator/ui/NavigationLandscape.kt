@@ -38,12 +38,17 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 @Composable
 fun NavigationLandscapePreview() {
     NavigatorTheme {
-        NavigationLandscape()
+        NavigationLandscapeContent()
     }
 }
 
 @Composable
-fun NavigationLandscape(modifier: Modifier = Modifier) {
+fun NavigationLandscapeScreen (modifier: Modifier = Modifier) {
+    NavigationLandscapeContent(modifier)
+}
+
+@Composable
+fun NavigationLandscapeContent(modifier: Modifier = Modifier) {
     val padding = 4.dp
 
     Column(modifier = modifier.fillMaxSize()) {

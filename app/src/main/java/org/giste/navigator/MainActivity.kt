@@ -14,7 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import org.giste.navigator.ui.NavigationLandscape
+import org.giste.navigator.ui.NavigationLandscapeContent
+import org.giste.navigator.ui.NavigationLandscapeScreen
 import org.giste.navigator.ui.theme.NavigatorTheme
 
 class MainActivity : ComponentActivity() {
@@ -48,7 +49,7 @@ fun Navigation() {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
-        NavigationLandscape(
+        NavigationLandscapeScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 // Consume this insets so that it's not applied again when using safeDrawing in the hierarchy below
