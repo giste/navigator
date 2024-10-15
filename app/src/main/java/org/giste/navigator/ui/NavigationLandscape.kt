@@ -1,7 +1,6 @@
 package org.giste.navigator.ui
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -18,12 +16,13 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
@@ -47,59 +46,60 @@ fun NavigationLandscapePreview() {
 fun NavigationLandscape(modifier: Modifier = Modifier) {
     val padding = 4.dp
 
-    Row(modifier = modifier.fillMaxSize()) {
-        Column(
+    Column(modifier = modifier.fillMaxSize()) {
+        Row(
             modifier = Modifier
-                .weight(2f)
-                .fillMaxHeight()
-                .padding(padding)
+                .weight(9f)
+                .fillMaxWidth()
         ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
+                    .weight(2f)
+                    .fillMaxHeight()
             ) {
-                DistanceTotal("1.234,56")
+                Row(
+                    modifier = Modifier
+                        .weight(.8f)
+                        .fillMaxWidth()
+                        .padding(horizontal = padding)
+                ) {
+                    DistanceTotal("9.999,99")
+                }
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier
+                        .weight(1.2f)
+                        .fillMaxWidth()
+                        .padding(horizontal = padding)
+                ) {
+                    DistancePartial("999,99")
+                }
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier
+                        .weight(5f)
+                        .fillMaxWidth()
+                        .padding(padding)
+                ) {
+                    Map()
+                }
             }
-            Row(
+            VerticalDivider()
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                DistancePartial("789,01")
-            }
-            Row(
-                modifier = Modifier
-                    .weight(4f)
-                    .fillMaxWidth()
-                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-            ) {
-                Map()
-            }
-        }
-        Column(
-            modifier = Modifier
-                .weight(5f)
-                .fillMaxHeight()
-                .padding(padding)
-        ) {
-            Row(
-                modifier = Modifier
-                    .weight(9f)
-                    .fillMaxWidth()
-                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                    .weight(5f)
+                    .fillMaxHeight()
+                    .padding(padding)
             ) {
                 Roadbook()
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                CommandBar()
-            }
+        }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            CommandBar()
         }
     }
 }
@@ -108,6 +108,7 @@ fun NavigationLandscape(modifier: Modifier = Modifier) {
 fun DistanceTotal(distance: String) {
     Text(
         text = distance,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.displayMedium,
         textAlign = TextAlign.End,
         modifier = Modifier
@@ -120,6 +121,7 @@ fun DistanceTotal(distance: String) {
 fun DistancePartial(distance: String) {
     Text(
         text = distance,
+        color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.displayLarge,
         textAlign = TextAlign.End,
         modifier = Modifier
@@ -154,7 +156,11 @@ fun Roadbook() {
 
 @Composable
 fun CommandBar() {
-    Row {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+    ) {
         CommandBarColumn (modifier = Modifier.weight(1f)) {
             CommandBarButton(
                 icon = Icons.Default.KeyboardArrowDown,
@@ -220,7 +226,8 @@ fun CommandBarButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            modifier = Modifier.size(72.dp),
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.onSurface
         )
     }
 }
