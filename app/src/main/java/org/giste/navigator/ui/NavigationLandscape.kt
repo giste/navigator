@@ -80,7 +80,7 @@ fun NavigationLandscapeContent(
             ) {
                 Row(
                     modifier = Modifier
-                        .weight(.8f)
+                        .weight(.9f)
                         .fillMaxWidth()
                         .padding(horizontal = padding)
                 ) {
