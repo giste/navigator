@@ -16,14 +16,14 @@ class NavigationViewModelTests {
     inner class PartialIsMin {
         @Test
         fun `increase() should add 10 meters`() {
-            viewModel.increasePartial()
+            viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
             assertEquals(10, viewModel.uiState.partial)
         }
 
         @Test
         fun `decrease() should not change partial`(){
-            viewModel.decreasePartial()
+            viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
 
             assertEquals(0, viewModel.uiState.partial)
         }
@@ -34,21 +34,46 @@ class NavigationViewModelTests {
     inner class PartialIsMax {
         @BeforeEach
         fun setup() {
-            viewModel.setPartial("999,99")
+            viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("999,99"))
         }
 
         @Test
         fun `increase() should not change partial`() {
-            viewModel.increasePartial()
+            viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
             assertEquals(999990, viewModel.uiState.partial)
         }
 
         @Test
         fun `decrease() should subtract 10 meters`() {
-            viewModel.decreasePartial()
+            viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
 
             assertEquals(999980, viewModel.uiState.partial)
+        }
+    }
+
+    @DisplayName("Given partial > 0 and total > 0")
+    @Nested
+    inner class ResetTests {
+        @BeforeEach
+        fun setup() {
+            viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("123,45"))
+            viewModel.onEvent(NavigationViewModel.UiEvent.SetTotal("9876,54"))
+        }
+
+        @Test
+        fun `resetPartial() should set partial to 0`() {
+            viewModel.onEvent(NavigationViewModel.UiEvent.ResetPartial)
+
+            assertEquals(0, viewModel.uiState.partial)
+        }
+
+        @Test
+        fun `resetAll() should set partial and total to 0`() {
+            viewModel.onEvent(NavigationViewModel.UiEvent.ResetAll)
+
+            assertEquals(0, viewModel.uiState.partial)
+            assertEquals(0, viewModel.uiState.total)
         }
     }
 
@@ -57,7 +82,7 @@ class NavigationViewModelTests {
     inner class SetPartialTests {
         @Test
         fun `when it's in 0-999 should update partial`() {
-            viewModel.setPartial("123,45")
+            viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("123,45"))
 
             assertEquals(123450, viewModel.uiState.partial)
         }
@@ -65,33 +90,8 @@ class NavigationViewModelTests {
         @Test
         fun `when it's out of range should throw IllegalArgumentException`(){
             assertThrows(IllegalArgumentException::class.java) {
-                viewModel.setPartial("1000,00")
+                viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("1000,00"))
             }
-        }
-    }
-
-    @DisplayName("Given partial and total > 0")
-    @Nested
-    inner class ResetTests {
-        @BeforeEach
-        fun setup() {
-            viewModel.setPartial("123,45")
-            //TODO("Can I set total value?")
-        }
-
-        @Test
-        fun `resetPartial() should set partial to 0`() {
-            viewModel.resetPartial()
-
-            assertEquals(0, viewModel.uiState.partial)
-        }
-
-        @Test
-        fun `resetAll() should set partial and total to 0`() {
-            viewModel.resetAll()
-
-            assertEquals(0, viewModel.uiState.partial)
-            assertEquals(0, viewModel.uiState.total)
         }
     }
 

@@ -45,28 +45,36 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavigationPreview() {
     NavigatorTheme {
-        NavigationContent(NavigationViewModel.UiState())
-    }
-}
-
-@Composable
-fun NavigationContent(
-    state: NavigationViewModel.UiState
-) {
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-    ) { innerPadding ->
-        NavigationLandscapeScreen(
-            state,
-            modifier = Modifier
-                .padding(innerPadding)
-                // Consume this insets so that it's not applied again when using safeDrawing in the hierarchy below
-                .consumeWindowInsets(innerPadding)
+        NavigationContent(
+            state = NavigationViewModel.UiState(),
+            onEvent = {},
         )
     }
 }
 
 @Composable
 fun NavigationScreen(viewModel: NavigationViewModel) {
-    NavigationContent(viewModel.uiState)
+    NavigationContent(
+        state = viewModel.uiState,
+        onEvent = viewModel::onEvent,
+    )
+}
+
+@Composable
+fun NavigationContent(
+    state: NavigationViewModel.UiState,
+    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+    ) { innerPadding ->
+        NavigationLandscapeScreen(
+            state = state,
+            onEvent = onEvent,
+            modifier = Modifier
+                .padding(innerPadding)
+                // Consume this insets so that it's not applied again when using safeDrawing in the hierarchy below
+                .consumeWindowInsets(innerPadding)
+        )
+    }
 }

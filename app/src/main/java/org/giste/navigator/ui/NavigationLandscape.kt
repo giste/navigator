@@ -1,6 +1,7 @@
 package org.giste.navigator.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -38,22 +39,31 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 @Composable
 fun NavigationLandscapePreview() {
     NavigatorTheme {
-        NavigationLandscapeContent(NavigationViewModel.UiState(123456, 1234567 ))
+        NavigationLandscapeContent(
+            state = NavigationViewModel.UiState(123456, 1234567 ),
+            onEvent = {},
+        )
     }
 }
 
 @Composable
 fun NavigationLandscapeScreen (
     state: NavigationViewModel.UiState,
+    onEvent: (NavigationViewModel.UiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    NavigationLandscapeContent(state, modifier)
+    NavigationLandscapeContent(
+        state = state,
+        onEvent =  onEvent,
+        modifier =  modifier,
+    )
 }
 
 @Composable
 fun NavigationLandscapeContent(
     state: NavigationViewModel.UiState,
-    modifier: Modifier = Modifier
+    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val padding = 4.dp
 
@@ -74,7 +84,10 @@ fun NavigationLandscapeContent(
                         .fillMaxWidth()
                         .padding(horizontal = padding)
                 ) {
-                    DistanceTotal("%,.2f".format(state.total.div(1000f)))
+                    DistanceTotal(
+                        distance = "%,.2f".format(state.total.div(1000f)),
+                        onClick = {},
+                    )
                 }
                 HorizontalDivider()
                 Row(
@@ -83,7 +96,10 @@ fun NavigationLandscapeContent(
                         .fillMaxWidth()
                         .padding(horizontal = padding)
                 ) {
-                    DistancePartial("%,.2f".format(state.partial.div(1000f)))
+                    DistancePartial(
+                        distance = "%,.2f".format(state.partial.div(1000f)),
+                        onClick = {},
+                    )
                 }
                 HorizontalDivider()
                 Row(
@@ -110,13 +126,16 @@ fun NavigationLandscapeContent(
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            CommandBar()
+            CommandBar(onEvent)
         }
     }
 }
 
 @Composable
-fun DistanceTotal(distance: String) {
+fun DistanceTotal(
+    distance: String,
+    onClick: () -> Unit,
+) {
     Text(
         text = distance,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -125,11 +144,15 @@ fun DistanceTotal(distance: String) {
         modifier = Modifier
             .fillMaxSize()
             .wrapContentHeight()
+            .clickable { onClick() }
     )
 }
 
 @Composable
-fun DistancePartial(distance: String) {
+fun DistancePartial(
+    distance: String,
+    onClick: () -> Unit,
+) {
     Text(
         text = distance,
         color = MaterialTheme.colorScheme.onSurface,
@@ -138,6 +161,7 @@ fun DistancePartial(distance: String) {
         modifier = Modifier
             .fillMaxSize()
             .wrapContentHeight()
+            .clickable { onClick() }
     )
 }
 
@@ -166,7 +190,9 @@ fun Roadbook() {
 }
 
 @Composable
-fun CommandBar() {
+fun CommandBar(
+    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -174,36 +200,42 @@ fun CommandBar() {
     ) {
         CommandBarColumn (modifier = Modifier.weight(1f)) {
             CommandBarButton(
+                { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
                 icon = Icons.Default.KeyboardArrowDown,
                 contentDescription = "Decrease partial"
             )
         }
         CommandBarColumn (modifier = Modifier.weight(1f)) {
             CommandBarButton(
+                { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
                 icon = Icons.Default.Refresh,
                 contentDescription = "Reset partial"
             )
         }
         CommandBarColumn (modifier = Modifier.weight(1f)) {
             CommandBarButton(
+                onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
                 icon = Icons.Default.KeyboardArrowUp,
                 contentDescription = "Increase partial"
             )
         }
         CommandBarColumn (modifier = Modifier.weight(1f)) {
             CommandBarButton(
+                onClick = { onEvent(NavigationViewModel.UiEvent.ResetAll) },
                 icon = Icons.Default.Clear,
                 contentDescription = "Reset All"
             )
         }
         CommandBarColumn (modifier = Modifier.weight(1f)) {
             CommandBarButton(
+                {},
                 icon = Icons.Default.Search,
                 contentDescription = "Load roadbook"
             )
         }
         CommandBarColumn (modifier = Modifier.weight(1f)) {
             CommandBarButton(
+                {},
                 icon = Icons.Default.Settings,
                 contentDescription = "Settings"
             )
@@ -225,12 +257,13 @@ fun CommandBarColumn(
 
 @Composable
 fun CommandBarButton(
+    onClick: () -> Unit,
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
 ) {
     IconButton(
-        onClick = { },
+        onClick = { onClick() },
         modifier = modifier
             .fillMaxSize()
     ) {
