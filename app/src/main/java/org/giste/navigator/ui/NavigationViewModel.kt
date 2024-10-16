@@ -1,7 +1,7 @@
 package org.giste.navigator.ui
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,38 +9,38 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor() : ViewModel() {
-    private var _partial by mutableIntStateOf(0)
-    val partial: String
-        get() = "%,.2f".format(_partial.toFloat()/1000)
+    data class UiState(
+        val partial:Int = 0,
+        val total: Int = 0,
+    )
 
-    private var _total by mutableIntStateOf(0)
-    val total: String
-        get() = "%,.2f".format(_total.toFloat()/1000)
+    var uiState by mutableStateOf(UiState())
 
     fun resetPartial() {
-        _partial = 0
+        uiState = uiState.copy(partial = 0)
     }
 
     fun decreasePartial() {
-        if (_partial >= 10) {
-            _partial -= 10
+        if(uiState.partial > 0) {
+            uiState = uiState.copy(partial = uiState.partial - 10)
         }
     }
 
     fun increasePartial() {
-        if (_partial < 999990) {
-            _partial += 10
+        if(uiState.partial < 999_990) {
+            uiState = uiState.copy(partial = uiState.partial + 10)
         }
     }
 
     fun resetAll() {
-        _partial = 0
-        _total = 0
+        uiState = uiState.copy(partial = 0, total = 0)
     }
 
     fun setPartial(partial: String) {
-        val meters = partial.split(Regex("\\D+")).map { it.toInt() }
+        val meters = partial.filter { it.isDigit() }.toInt() * 10
 
-        _partial = meters[0] * 1000 + meters[1] * 10
+        if (meters in 0..999_990){
+            uiState = uiState.copy(partial = meters)
+        }
     }
 }
