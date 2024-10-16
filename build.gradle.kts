@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.hilt.plugin) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.junit.plugin) apply false
 }

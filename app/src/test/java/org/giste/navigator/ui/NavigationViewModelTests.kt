@@ -1,8 +1,9 @@
 package org.giste.navigator.ui
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
+
 
 class NavigationViewModelTests {
     private val viewModel = NavigationViewModel()
@@ -11,19 +12,21 @@ class NavigationViewModelTests {
     fun setPartial_ifItIsInRange_shouldUpdateIt() {
         viewModel.setPartial("123,45")
 
-        assertThat(viewModel.uiState.partial, equalTo(123450))
+        assertEquals(123450, viewModel.uiState.partial)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun setPartial_ifItIsOutOfRange_ShouldThrowException() {
-        viewModel.setPartial("1000,00")
+        assertThrows(IllegalArgumentException::class.java) {
+            viewModel.setPartial("1000,00")
+        }
     }
 
     @Test
     fun increasePartial_ifPartialIsMinorThan999Dot99_shouldAddOneUnit() {
         viewModel.increasePartial()
 
-        assertThat(viewModel.uiState.partial, equalTo(10))
+        assertEquals(10, viewModel.uiState.partial)
     }
 
     @Test
@@ -31,7 +34,7 @@ class NavigationViewModelTests {
         viewModel.setPartial("999,99")
         viewModel.increasePartial()
 
-        assertThat(viewModel.uiState.partial, equalTo(999990))
+        assertEquals(999990, viewModel.uiState.partial)
     }
 
     @Test
@@ -39,14 +42,14 @@ class NavigationViewModelTests {
         viewModel.setPartial("123,45")
         viewModel.decreasePartial()
 
-        assertThat(viewModel.uiState.partial, equalTo(123440))
+        assertEquals(123440, viewModel.uiState.partial)
     }
 
     @Test
     fun decreasePartial_ifPartialIsZero_shouldRemainZero() {
         viewModel.decreasePartial()
 
-        assertThat(viewModel.uiState.partial, equalTo(0))
+        assertEquals(0, viewModel.uiState.partial)
     }
 
     @Test
@@ -54,7 +57,7 @@ class NavigationViewModelTests {
         viewModel.setPartial("123,45")
         viewModel.resetPartial()
 
-        assertThat(viewModel.uiState.partial, equalTo(0))
+        assertEquals(0, viewModel.uiState.partial)
     }
 
     @Test
@@ -62,8 +65,8 @@ class NavigationViewModelTests {
         viewModel.setPartial("123,45")
         viewModel.resetAll()
 
-        assertThat(viewModel.uiState.partial, equalTo(0))
+        assertEquals(0, viewModel.uiState.partial)
         //TODO("Check total")
-        assertThat(viewModel.uiState.total, equalTo(0))
+        assertEquals(0, viewModel.uiState.total)
     }
 }
