@@ -10,24 +10,25 @@ import javax.inject.Inject
 @HiltViewModel
 class NavigationViewModel @Inject constructor() : ViewModel() {
     data class UiState(
-        val partial:Int = 0,
+        val partial: Int = 0,
         val total: Int = 0,
     )
 
     var uiState by mutableStateOf(UiState())
+        private set
 
     fun resetPartial() {
         uiState = uiState.copy(partial = 0)
     }
 
     fun decreasePartial() {
-        if(uiState.partial > 0) {
+        if (uiState.partial > 0) {
             uiState = uiState.copy(partial = uiState.partial - 10)
         }
     }
 
     fun increasePartial() {
-        if(uiState.partial < 999_990) {
+        if (uiState.partial < 999_990) {
             uiState = uiState.copy(partial = uiState.partial + 10)
         }
     }
@@ -39,8 +40,12 @@ class NavigationViewModel @Inject constructor() : ViewModel() {
     fun setPartial(partial: String) {
         val meters = partial.filter { it.isDigit() }.toInt() * 10
 
-        if (meters in 0..999_990){
+        if (meters in 0..999_990) {
             uiState = uiState.copy(partial = meters)
+        } else {
+            throw IllegalArgumentException(
+                "Partial must represent a number between 0 and ${"%,.2f".format(999.99f)}"
+            )
         }
     }
 }

@@ -8,10 +8,15 @@ class NavigationViewModelTests {
     private val viewModel = NavigationViewModel()
 
     @Test
-    fun setPartial_shouldUpdateIt() {
+    fun setPartial_ifItIsInRange_shouldUpdateIt() {
         viewModel.setPartial("123,45")
 
         assertThat(viewModel.uiState.partial, equalTo(123450))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun setPartial_ifItIsOutOfRange_ShouldThrowException() {
+        viewModel.setPartial("1000,00")
     }
 
     @Test
