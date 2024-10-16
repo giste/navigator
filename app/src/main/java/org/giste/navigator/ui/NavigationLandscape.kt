@@ -38,17 +38,23 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 @Composable
 fun NavigationLandscapePreview() {
     NavigatorTheme {
-        NavigationLandscapeContent()
+        NavigationLandscapeContent(NavigationViewModel.UiState(123456, 1234567 ))
     }
 }
 
 @Composable
-fun NavigationLandscapeScreen (modifier: Modifier = Modifier) {
-    NavigationLandscapeContent(modifier)
+fun NavigationLandscapeScreen (
+    state: NavigationViewModel.UiState,
+    modifier: Modifier = Modifier,
+) {
+    NavigationLandscapeContent(state, modifier)
 }
 
 @Composable
-fun NavigationLandscapeContent(modifier: Modifier = Modifier) {
+fun NavigationLandscapeContent(
+    state: NavigationViewModel.UiState,
+    modifier: Modifier = Modifier
+) {
     val padding = 4.dp
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -68,7 +74,7 @@ fun NavigationLandscapeContent(modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .padding(horizontal = padding)
                 ) {
-                    DistanceTotal("9.999,99")
+                    DistanceTotal("%,.2f".format(state.total.div(1000f)))
                 }
                 HorizontalDivider()
                 Row(
@@ -77,7 +83,7 @@ fun NavigationLandscapeContent(modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .padding(horizontal = padding)
                 ) {
-                    DistancePartial("999,99")
+                    DistancePartial("%,.2f".format(state.partial.div(1000f)))
                 }
                 HorizontalDivider()
                 Row(
