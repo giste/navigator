@@ -126,7 +126,53 @@ fun NavigationLandscapeContent(
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            CommandBar(onEvent)
+            //CommandBar(onEvent)
+            CommandBar(
+                listOf(
+                    {
+                        CommandBarButton(
+                            onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
+                            icon = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "Decrease partial"
+                        )
+                    },
+                    {
+                        CommandBarButton(
+                            { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
+                            icon = Icons.Default.Refresh,
+                            contentDescription = "Reset partial"
+                        )
+                    },
+                    {
+                        CommandBarButton(
+                            onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
+                            icon = Icons.Default.KeyboardArrowUp,
+                            contentDescription = "Increase partial"
+                        )
+                    },
+                    {
+                        CommandBarButton(
+                            onClick = { onEvent(NavigationViewModel.UiEvent.ResetAll) },
+                            icon = Icons.Default.Clear,
+                            contentDescription = "Reset All"
+                        )
+                    },
+                    {
+                        CommandBarButton(
+                            {},
+                            icon = Icons.Default.Search,
+                            contentDescription = "Load roadbook"
+                        )
+                    },
+                    {
+                        CommandBarButton(
+                            {},
+                            icon = Icons.Default.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
+                )
+            )
         }
     }
 }
@@ -191,67 +237,20 @@ fun Roadbook() {
 
 @Composable
 fun CommandBar(
-    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+    buttons: List<@Composable () -> Unit>,
 ) {
     Row(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        CommandBarColumn (modifier = Modifier.weight(1f)) {
-            CommandBarButton(
-                { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
-                icon = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Decrease partial"
-            )
+        buttons.forEach { button ->
+            Column(
+                modifier = Modifier.fillMaxSize().weight(1f)
+            ) {
+                button()
+            }
         }
-        CommandBarColumn (modifier = Modifier.weight(1f)) {
-            CommandBarButton(
-                { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
-                icon = Icons.Default.Refresh,
-                contentDescription = "Reset partial"
-            )
-        }
-        CommandBarColumn (modifier = Modifier.weight(1f)) {
-            CommandBarButton(
-                onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
-                icon = Icons.Default.KeyboardArrowUp,
-                contentDescription = "Increase partial"
-            )
-        }
-        CommandBarColumn (modifier = Modifier.weight(1f)) {
-            CommandBarButton(
-                onClick = { onEvent(NavigationViewModel.UiEvent.ResetAll) },
-                icon = Icons.Default.Clear,
-                contentDescription = "Reset All"
-            )
-        }
-        CommandBarColumn (modifier = Modifier.weight(1f)) {
-            CommandBarButton(
-                {},
-                icon = Icons.Default.Search,
-                contentDescription = "Load roadbook"
-            )
-        }
-        CommandBarColumn (modifier = Modifier.weight(1f)) {
-            CommandBarButton(
-                {},
-                icon = Icons.Default.Settings,
-                contentDescription = "Settings"
-            )
-        }
-    }
-}
-
-@Composable
-fun CommandBarColumn(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        content()
     }
 }
 
