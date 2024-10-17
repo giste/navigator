@@ -78,102 +78,33 @@ fun NavigationLandscapeContent(
                     .weight(2f)
                     .fillMaxHeight()
             ) {
-                Row(
-                    modifier = Modifier
-                        .weight(.9f)
-                        .fillMaxWidth()
-                        .padding(horizontal = padding)
-                ) {
-                    DistanceTotal(
-                        distance = "%,.2f".format(state.total.div(1000f)),
-                        onClick = {},
-                    )
-                }
+                DistanceTotal(
+                    distance = "%,.2f".format(state.total.div(1000f)),
+                    onClick = {},
+                    modifier = Modifier.weight(.9f).padding(horizontal = padding),
+                )
                 HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .weight(1.2f)
-                        .fillMaxWidth()
-                        .padding(horizontal = padding)
-                ) {
-                    DistancePartial(
-                        distance = "%,.2f".format(state.partial.div(1000f)),
-                        onClick = {},
-                    )
-                }
+                DistancePartial(
+                    distance = "%,.2f".format(state.partial.div(1000f)),
+                    onClick = {},
+                    modifier = Modifier.weight(1.2f).padding(horizontal = padding),
+                )
                 HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .weight(5f)
-                        .fillMaxWidth()
-                        .padding(padding)
-                ) {
-                    Map()
-                }
+                Map(
+                    modifier = Modifier.weight(5f).padding(padding)
+                )
             }
             VerticalDivider()
-            Column(
+            Roadbook(
                 modifier = Modifier
                     .weight(5f)
-                    .fillMaxHeight()
                     .padding(padding)
-            ) {
-                Roadbook()
-            }
-        }
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            //CommandBar(onEvent)
-            CommandBar(
-                listOf(
-                    {
-                        CommandBarButton(
-                            onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
-                            icon = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Decrease partial"
-                        )
-                    },
-                    {
-                        CommandBarButton(
-                            { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
-                            icon = Icons.Default.Refresh,
-                            contentDescription = "Reset partial"
-                        )
-                    },
-                    {
-                        CommandBarButton(
-                            onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
-                            icon = Icons.Default.KeyboardArrowUp,
-                            contentDescription = "Increase partial"
-                        )
-                    },
-                    {
-                        CommandBarButton(
-                            onClick = { onEvent(NavigationViewModel.UiEvent.ResetAll) },
-                            icon = Icons.Default.Clear,
-                            contentDescription = "Reset All"
-                        )
-                    },
-                    {
-                        CommandBarButton(
-                            {},
-                            icon = Icons.Default.Search,
-                            contentDescription = "Load roadbook"
-                        )
-                    },
-                    {
-                        CommandBarButton(
-                            {},
-                            icon = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
-                )
             )
         }
+        CommandBar(
+            onEvent = onEvent,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -181,13 +112,14 @@ fun NavigationLandscapeContent(
 fun DistanceTotal(
     distance: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = distance,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.displayMedium,
         textAlign = TextAlign.End,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .wrapContentHeight()
             .clickable { onClick() }
@@ -198,13 +130,14 @@ fun DistanceTotal(
 fun DistancePartial(
     distance: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = distance,
         color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.displayLarge,
         textAlign = TextAlign.End,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .wrapContentHeight()
             .clickable { onClick() }
@@ -212,24 +145,28 @@ fun DistancePartial(
 }
 
 @Composable
-fun Map() {
+fun Map(
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = "Map",
         style = MaterialTheme.typography.displayLarge,
         textAlign = TextAlign.Center,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .wrapContentHeight()
     )
 }
 
 @Composable
-fun Roadbook() {
+fun Roadbook(
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = "Roadbook",
         style = MaterialTheme.typography.displayLarge,
         textAlign = TextAlign.Center,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .wrapContentHeight()
     )
@@ -237,20 +174,50 @@ fun Roadbook() {
 
 @Composable
 fun CommandBar(
-    buttons: List<@Composable () -> Unit>,
+    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        buttons.forEach { button ->
-            Column(
-                modifier = Modifier.fillMaxSize().weight(1f)
-            ) {
-                button()
-            }
-        }
+        CommandBarButton(
+            onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
+            icon = Icons.Default.KeyboardArrowDown,
+            contentDescription = "Decrease partial",
+            modifier = Modifier.weight(1f)
+        )
+        CommandBarButton(
+            onClick = { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
+            icon = Icons.Default.Refresh,
+            contentDescription = "Reset partial",
+            modifier = Modifier.weight(1f)
+        )
+        CommandBarButton(
+            onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
+            icon = Icons.Default.KeyboardArrowUp,
+            contentDescription = "Increase partial",
+            modifier = Modifier.weight(1f)
+        )
+        CommandBarButton(
+            onClick = { onEvent(NavigationViewModel.UiEvent.ResetAll) },
+            icon = Icons.Default.Clear,
+            contentDescription = "Reset All",
+            modifier = Modifier.weight(1f)
+        )
+        CommandBarButton(
+            onClick = {},
+            icon = Icons.Default.Search,
+            contentDescription = "Load roadbook",
+            modifier = Modifier.weight(1f)
+        )
+        CommandBarButton(
+            onClick = {},
+            icon = Icons.Default.Settings,
+            contentDescription = "Settings",
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -263,8 +230,7 @@ fun CommandBarButton(
 ) {
     IconButton(
         onClick = { onClick() },
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Icon(
             imageVector = icon,
