@@ -28,9 +28,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.giste.navigator.R
 import org.giste.navigator.ui.theme.NavigatorTheme
 
 @Preview(
@@ -114,7 +116,7 @@ fun NavigationLandscapeContent(
     if(showPartialSettingDialog.value) {
         DistanceSettingDialog(
             showDialog = showPartialSettingDialog,
-            title = "Partial",
+            title = stringResource(R.string.partial_label),
             text = state.partial.div(10).toString(),
             numberOfIntegerDigits = 3,
             numberOfDecimals = 2,
@@ -125,7 +127,7 @@ fun NavigationLandscapeContent(
     if(showTotalSettingDialog.value) {
         DistanceSettingDialog(
             showDialog = showTotalSettingDialog,
-            title = "Partial",
+            title = stringResource(R.string.total_label),
             text = state.total.div(10).toString(),
             numberOfIntegerDigits = 4,
             numberOfDecimals = 2,

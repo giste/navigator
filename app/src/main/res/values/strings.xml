@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Navigator</string>
+
+    <string name="partial_label">Partial</string>
+    <string name="total_label">Total</string>
+
+    <string name="permissions_title">Permissions</string>
+    <string name="permissions_request">This application needs location permissions to work. Please grant fine location permission.</string>
 </resources>

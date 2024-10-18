@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
+import org.giste.navigator.ui.ManagePermissions
 import org.giste.navigator.ui.NavigationLandscapeScreen
 import org.giste.navigator.ui.NavigationViewModel
 import org.giste.navigator.ui.theme.NavigatorTheme
@@ -65,6 +66,7 @@ fun NavigationContent(
     state: NavigationViewModel.UiState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
 ) {
+    ManagePermissions()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
