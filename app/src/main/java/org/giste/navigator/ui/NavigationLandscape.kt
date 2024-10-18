@@ -24,6 +24,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
@@ -66,6 +68,8 @@ fun NavigationLandscapeContent(
     modifier: Modifier = Modifier,
 ) {
     val padding = 4.dp
+    val showPartialSettingDialog = remember { mutableStateOf(false) }
+    val showTotalSettingDialog = remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
         Row(
@@ -86,7 +90,7 @@ fun NavigationLandscapeContent(
                 HorizontalDivider()
                 DistancePartial(
                     distance = "%,.2f".format(state.partial.div(1000f)),
-                    onClick = {},
+                    onClick = { showPartialSettingDialog.value = true },
                     modifier = Modifier.weight(1.2f).padding(horizontal = padding),
                 )
                 HorizontalDivider()
@@ -104,6 +108,28 @@ fun NavigationLandscapeContent(
         CommandBar(
             onEvent = onEvent,
             modifier = Modifier.weight(1f)
+        )
+    }
+
+    if(showPartialSettingDialog.value) {
+        DistanceSettingDialog(
+            showDialog = showPartialSettingDialog,
+            title = "Partial",
+            text = state.partial.div(10).toString(),
+            numberOfIntegerDigits = 3,
+            numberOfDecimals = 2,
+            onAccept = { onEvent(NavigationViewModel.UiEvent.SetPartial(it)) }
+        )
+    }
+
+    if(showTotalSettingDialog.value) {
+        DistanceSettingDialog(
+            showDialog = showTotalSettingDialog,
+            title = "Partial",
+            text = state.total.div(10).toString(),
+            numberOfIntegerDigits = 4,
+            numberOfDecimals = 2,
+            onAccept = { onEvent(NavigationViewModel.UiEvent.SetTotal(it)) }
         )
     }
 }
