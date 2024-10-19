@@ -1,21 +1,59 @@
 package org.giste.navigator.ui
 
+import android.location.Location
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @DisplayName("Tests for NavigationViewModel")
+@ExtendWith(MockKExtension::class)
 class NavigationViewModelTests {
-    private val viewModel = NavigationViewModel()
+
+    private val locationRepository: LocationRepository = mockk()
+    private lateinit var viewModel: NavigationViewModel
+
+    //TODO: Rule or subclass???
+    //TODO: viewModel initialization in beforeEach???
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @BeforeEach
+    fun beforeEach() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @AfterEach
+    fun afterEach() {
+        Dispatchers.resetMain()
+        clearAllMocks()
+    }
 
     @DisplayName("Given minimum partial (0)")
     @Nested
     inner class PartialIsMin {
         @Test
-        fun `increase() should add 10 meters`() {
+        fun `increase() should add 10 meters`() = runTest {
+            coEvery { locationRepository.listenToLocation(any(), any()) } returns flow {
+                emit(Location("Dummy"))
+            }
+
+            viewModel = NavigationViewModel(locationRepository)
             viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
             assertEquals(10, viewModel.uiState.partial)

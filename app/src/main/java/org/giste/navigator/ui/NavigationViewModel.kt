@@ -1,14 +1,20 @@
 package org.giste.navigator.ui
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class NavigationViewModel @Inject constructor() : ViewModel() {
+class NavigationViewModel @Inject constructor(
+    locationRepository: LocationRepository
+) : ViewModel() {
     data class UiState(
         val partial: Int = 0,
         val total: Int = 0,
@@ -16,6 +22,12 @@ class NavigationViewModel @Inject constructor() : ViewModel() {
 
     var uiState by mutableStateOf(UiState())
         private set
+
+    init {
+        locationRepository.listenToLocation(1_000L, 10f).onEach {
+            //Log.d("NavigationViewModel", "Location(${it})")
+        }.launchIn(viewModelScope)
+    }
 
     private fun resetPartial() {
         uiState = uiState.copy(partial = 0)
