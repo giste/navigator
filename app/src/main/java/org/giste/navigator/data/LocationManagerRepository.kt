@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import androidx.core.content.ContextCompat.getSystemService
@@ -13,6 +12,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import org.giste.navigator.ui.Location
 import org.giste.navigator.ui.LocationRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,7 +32,7 @@ class LocationManagerRepository @Inject constructor(
             if(!hasLocationPermission()) throw Exception()
             val locationCallback = LocationListener { location ->
                 location.let {
-                    launch { send(it) }
+                    launch { send(Location(it.latitude, it.longitude, it.altitude)) }
                 }
             }
 

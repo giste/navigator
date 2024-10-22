@@ -1,6 +1,5 @@
 package org.giste.navigator.ui
 
-import android.location.Location
 import kotlinx.coroutines.flow.Flow
 
 interface LocationRepository {

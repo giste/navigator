@@ -1,6 +1,5 @@
 package org.giste.navigator.ui
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,10 +9,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
-    locationRepository: LocationRepository
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
     data class UiState(
         val partial: Int = 0,
@@ -23,9 +23,23 @@ class NavigationViewModel @Inject constructor(
     var uiState by mutableStateOf(UiState())
         private set
 
+    private var lastLocation by mutableStateOf<Location?>(null)
+
     init {
-        locationRepository.listenToLocation(1_000L, 10f).onEach {
-            //Log.d("NavigationViewModel", "Location(${it})")
+        startListenForLocations()
+    }
+
+    private fun startListenForLocations() {
+        locationRepository.listenToLocation(1_000L, 10f).onEach { newLocation ->
+            lastLocation?.let {
+                val d = it.distanceTo(newLocation)
+                val distance = d.roundToInt()
+                uiState = uiState.copy(
+                    partial = uiState.partial + distance,
+                    total = uiState.total + distance,
+                )
+            }
+            lastLocation = newLocation
         }.launchIn(viewModelScope)
     }
 

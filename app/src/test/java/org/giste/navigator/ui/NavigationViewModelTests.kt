@@ -1,13 +1,12 @@
 package org.giste.navigator.ui
 
-import android.location.Location
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -28,13 +27,17 @@ class NavigationViewModelTests {
     private val locationRepository: LocationRepository = mockk()
     private lateinit var viewModel: NavigationViewModel
 
-    //TODO: Rule or subclass???
-    //TODO: viewModel initialization in beforeEach???
-
     @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeEach
     fun beforeEach() {
+        //TODO: Rule or subclass???
         Dispatchers.setMain(UnconfinedTestDispatcher())
+
+        coEvery {
+            locationRepository.listenToLocation(any(), any())
+        } returns EmptyRoute.getLocations().asFlow()
+
+        viewModel = NavigationViewModel(locationRepository)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -49,18 +52,13 @@ class NavigationViewModelTests {
     inner class PartialIsMin {
         @Test
         fun `increase() should add 10 meters`() = runTest {
-            coEvery { locationRepository.listenToLocation(any(), any()) } returns flow {
-                emit(Location("Dummy"))
-            }
-
-            viewModel = NavigationViewModel(locationRepository)
             viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
             assertEquals(10, viewModel.uiState.partial)
         }
 
         @Test
-        fun `decrease() should not change partial`(){
+        fun `decrease() should not change partial`() {
             viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
 
             assertEquals(0, viewModel.uiState.partial)
@@ -126,11 +124,23 @@ class NavigationViewModelTests {
         }
 
         @Test
-        fun `when it's out of range should throw IllegalArgumentException`(){
+        fun `when it's out of range should throw IllegalArgumentException`() {
             assertThrows(IllegalArgumentException::class.java) {
                 viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("1000,00"))
             }
         }
+    }
+
+    @Test
+    fun `when locations are collected it should calculate distances`() = runTest {
+        val locRepository: LocationRepository = mockk()
+        coEvery {
+            locRepository.listenToLocation(any(), any())
+        } returns TestRoute.getLocations().asFlow()
+        val viewModel = NavigationViewModel(locRepository)
+
+        assertEquals(TestRoute.getDistance(), viewModel.uiState.partial)
+
     }
 
 }
