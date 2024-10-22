@@ -140,7 +140,7 @@ class NavigationViewModelTests {
         val viewModel = NavigationViewModel(locRepository)
 
         assertEquals(TestRoute.getDistance(), viewModel.uiState.partial)
-
+        assertEquals(TestRoute.getDistance(), viewModel.uiState.total)
     }
 
 }
