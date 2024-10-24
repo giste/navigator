@@ -54,7 +54,6 @@ android {
 }
 
 dependencies {
-
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
@@ -64,7 +63,10 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.coil.compose)
     implementation(libs.hilt.android)
+    implementation(libs.paging.compose)
+
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit.jupiter.api)

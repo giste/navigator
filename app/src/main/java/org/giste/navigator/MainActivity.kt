@@ -19,11 +19,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.giste.navigator.ui.ManagePermissions
 import org.giste.navigator.ui.NavigationLandscapeScreen
 import org.giste.navigator.ui.NavigationViewModel
+import org.giste.navigator.ui.PdfScreen
+import org.giste.navigator.ui.PdfViewModel
 import org.giste.navigator.ui.theme.NavigatorTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel: NavigationViewModel by viewModels()
+    //private val viewModel: NavigationViewModel by viewModels()
+    private val pdfViewModel: PdfViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +35,11 @@ class MainActivity : ComponentActivity() {
             val activity = LocalContext.current as Activity
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
+//            NavigatorTheme {
+//                NavigationScreen(viewModel)
+//            }
             NavigatorTheme {
-                NavigationScreen(viewModel)
+                PdfScreen(pdfViewModel)
             }
         }
     }

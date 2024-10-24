@@ -3,6 +3,7 @@ accompanistVersion = "0.36.0"
 activityComposeVersion = "1.9.3"
 agpVersion = "8.6.1"
 androixJunitVersion = "1.2.1"
+coilVersion = "3.0.0-rc01"
 composeBomVersion = "2024.10.00"
 coreKtxVersion = "1.13.1"
 espressoCoreVersion = "3.6.1"
@@ -14,6 +15,7 @@ kotlinxCoroutinesVersion = "1.9.0"
 kspVersion = "2.0.20-1.0.24"
 lifecycleRuntimeKtxVersion = "2.8.6"
 mockkVersion = "1.13.13"
+pagingComposeVersion = "3.3.2"
 
 [libraries]
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistVersion" }
@@ -36,6 +38,8 @@ junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", v
 junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitVersion" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesVersion" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockkVersion" }
+paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingComposeVersion" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coilVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agpVersion" }
