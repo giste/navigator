@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.giste.navigator.ui.LocationRepository
+import org.giste.navigator.ui.PdfRepository
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -16,4 +17,9 @@ class DataModule {
     @Singleton
     fun provideLocationRepository(@ApplicationContext appContext: Context): LocationRepository =
         LocationManagerRepository(appContext)
+
+    @Provides
+    @Singleton
+    fun providePdfRepository(@ApplicationContext appContext: Context): PdfRepository =
+        PdfRendererRepository(appContext)
 }

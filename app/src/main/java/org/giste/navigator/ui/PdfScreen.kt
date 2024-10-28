@@ -12,11 +12,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 
 
 @Preview(
@@ -26,14 +27,14 @@ import androidx.compose.ui.tooling.preview.Preview
 )
 @Composable
 fun PdfPreview() {
-    PdfContent(PdfViewModel.PdfDisplayState.Loading, {})
+    PdfContent(PdfViewModel.PdfDisplayState.NoPdf) {}
 }
 
 @Composable
 fun PdfScreen(pdfViewModel: PdfViewModel) {
     PdfContent(
-        pdfViewModel.displayState.collectAsState().value,
-        pdfViewModel::onUriChange,
+        pdfViewModel.displayState.collectAsStateWithLifecycle().value,
+        pdfViewModel::setUri,
     )
 }
 
@@ -73,9 +74,14 @@ fun PdfContent(
                 Text(path.value)
             }
             Column(modifier = Modifier.weight(4f)) {
-                PdfViewer(
-                    state = uiState,
-                )
+                when (uiState) {
+                    is PdfViewModel.PdfDisplayState.NoPdf -> {
+                        Text(text = "Load a roadbook")
+                    }
+                    is PdfViewModel.PdfDisplayState.LoadedContent -> {
+                        PdfViewer(bitmaps = uiState.pages.collectAsLazyPagingItems())
+                    }
+                }
             }
         }
 

@@ -20,27 +20,19 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 
 
 @Composable
 fun PdfViewer(
-    state: PdfViewModel.PdfDisplayState,
+    bitmaps: LazyPagingItems<Bitmap>,
     modifier: Modifier = Modifier,
 ) {
-    when (state) {
-        is PdfViewModel.PdfDisplayState.AllLoadedContent -> {
-            Log.d("PdfViewer", "AllLoadedContent")
-
-            LazyColumn(modifier = modifier) {
-                items(state.pages.size) { index ->
-                    PdfPage(page = state.pages[index])
-                }
-            }
-        }
-
-        is PdfViewModel.PdfDisplayState.Error -> {
+    when (bitmaps.loadState.refresh) {
+        is LoadState.Error -> {
             Log.d("PdfViewer", "Error")
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column {
@@ -49,51 +41,25 @@ fun PdfViewer(
                         contentDescription = "Warning",
                         modifier = Modifier.size(48.dp),
                     )
-                    Text(text = state.message)
+                    Text(text = (bitmaps.loadState.refresh as LoadState.Error).error.message ?: "Unexpected error")
                 }
             }
         }
 
-        PdfViewModel.PdfDisplayState.Loading -> {
+        is LoadState.Loading -> {
             Log.d("PdfViewer", "Loading")
             LoadingUi()
         }
 
-        PdfViewModel.PdfDisplayState.NoPdf -> {
-            Log.d("PdfViewer", "NoPdf")
-            Text("Please, load a pdf")
-        }
-
-        is PdfViewModel.PdfDisplayState.PartiallyLoadedContent -> {
-            Log.d("PdfViewer", "PartiallyLoadedContent")
-            val items = state.pages.collectAsLazyPagingItems()
-            when (val pageState = items.loadState.refresh) {
-                is LoadState.Error -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Warning",
-                                modifier = Modifier.size(48.dp),
-                            )
-                            Text(text = "Error loading pages")
-                        }
-                    }
-                }
-
-                LoadState.Loading -> {
-                    LoadingUi()
-                }
-
-                is LoadState.NotLoading -> {
-                    LazyColumn(modifier = modifier) {
-                        items(items.itemCount) { index ->
-                            val page = items[index]
-                            if (page != null) {
-                                PdfPage(page = page)
-                            }
-                        }
-                    }
+        else -> {
+            Log.d("PdfViewer", "Display")
+            LazyColumn(modifier = modifier) {
+                items(
+                    count = bitmaps.itemCount,
+                    key = bitmaps.itemKey(),
+                    contentType = bitmaps.itemContentType()
+                ) { index ->
+                    PdfPage(bitmaps[index]!!)
                 }
             }
         }
@@ -116,12 +82,7 @@ private fun PdfPage(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(page.width.toFloat() / page.height.toFloat())
-            .drawWithContent {
-                drawContent()
-
-                val scaleFactorX = size.width / page.width
-                val scaleFactorY = size.height / page.height
-            },
+            .drawWithContent { drawContent() },
         contentScale = ContentScale.FillWidth
     )
 }
