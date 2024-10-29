@@ -28,12 +28,11 @@ import coil3.compose.AsyncImage
 
 @Composable
 fun PdfViewer(
-    bitmaps: LazyPagingItems<Bitmap>,
+    pages: LazyPagingItems<PdfPage>,
     modifier: Modifier = Modifier,
 ) {
-    when (bitmaps.loadState.refresh) {
+    when (pages.loadState.refresh) {
         is LoadState.Error -> {
-            Log.d("PdfViewer", "Error")
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column {
                     Icon(
@@ -41,25 +40,27 @@ fun PdfViewer(
                         contentDescription = "Warning",
                         modifier = Modifier.size(48.dp),
                     )
-                    Text(text = (bitmaps.loadState.refresh as LoadState.Error).error.message ?: "Unexpected error")
+                    Text(text = (pages.loadState.refresh as LoadState.Error).error.message ?: "Unexpected error")
                 }
             }
         }
 
         is LoadState.Loading -> {
-            Log.d("PdfViewer", "Loading")
             LoadingUi()
         }
 
         else -> {
-            Log.d("PdfViewer", "Display")
             LazyColumn(modifier = modifier) {
                 items(
-                    count = bitmaps.itemCount,
-                    key = bitmaps.itemKey(),
-                    contentType = bitmaps.itemContentType()
+                    count = pages.itemCount,
+                    key = pages.itemKey(),
+                    contentType = pages.itemContentType()
                 ) { index ->
-                    PdfPage(bitmaps[index]!!)
+                    Log.d("PdfViewer", "index: $index")
+                    val pdfPage = pages[index]
+                    pdfPage?.let {
+                        PdfPage(it.bitmap)
+                    }
                 }
             }
         }

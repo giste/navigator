@@ -18,7 +18,7 @@ class PdfViewModel @Inject constructor(
 
     sealed class PdfDisplayState() {
         data object NoPdf : PdfDisplayState()
-        data class LoadedContent(val pages: Flow<PagingData<Bitmap>>) : PdfDisplayState()
+        data class LoadedContent(val pages: Flow<PagingData<PdfPage>>) : PdfDisplayState()
     }
 
     private var uri = mutableStateOf(Uri.EMPTY)

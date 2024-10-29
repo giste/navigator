@@ -1,8 +1,8 @@
 package org.giste.navigator.data
 
-import android.graphics.Bitmap
+import org.giste.navigator.ui.PdfPage
 
 interface PdfService {
     suspend fun getPageCount(): Int
-    suspend fun load(startPosition: Int, loadSize: Int): List<Bitmap>
+    suspend fun load(startPosition: Int, loadSize: Int): List<PdfPage>
 }

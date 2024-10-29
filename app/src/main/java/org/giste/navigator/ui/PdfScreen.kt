@@ -79,7 +79,7 @@ fun PdfContent(
                         Text(text = "Load a roadbook")
                     }
                     is PdfViewModel.PdfDisplayState.LoadedContent -> {
-                        PdfViewer(bitmaps = uiState.pages.collectAsLazyPagingItems())
+                        PdfViewer(pages = uiState.pages.collectAsLazyPagingItems())
                     }
                 }
             }

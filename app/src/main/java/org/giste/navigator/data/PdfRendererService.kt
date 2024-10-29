@@ -10,6 +10,7 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.giste.navigator.ui.PdfPage
 
 private const val CLASS_NAME = "PdfRendererService"
 
@@ -28,10 +29,10 @@ class PdfRendererService(
         }
     }
 
-    override suspend fun load(startPosition: Int, loadSize: Int): List<Bitmap> {
+    override suspend fun load(startPosition: Int, loadSize: Int): List<PdfPage> {
         if (uri == Uri.EMPTY) return emptyList()
 
-        val bitmaps = mutableListOf<Bitmap>()
+        val bitmaps = mutableListOf<PdfPage>()
 
         pdfRenderer.let {
             for (index in startPosition.coerceAtLeast(0) until (startPosition + loadSize).coerceAtMost(
@@ -40,7 +41,7 @@ class PdfRendererService(
                 Log.d(CLASS_NAME, "Processing page $index")
                 it.openPage(index).use { page ->
                     val bitmap = drawBitmapLogic(page)
-                    bitmaps.add(bitmap)
+                    bitmaps.add(PdfPage(index, bitmap))
                 }
             }
         }
