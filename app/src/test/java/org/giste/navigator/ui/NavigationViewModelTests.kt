@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.giste.navigator.model.PdfRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class NavigationViewModelTests {
 
     private val locationRepository: LocationRepository = mockk()
+    private val pdfRepository: PdfRepository = mockk()
     private lateinit var viewModel: NavigationViewModel
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,7 +39,7 @@ class NavigationViewModelTests {
             locationRepository.listenToLocation(any(), any())
         } returns EmptyRoute.getLocations().asFlow()
 
-        viewModel = NavigationViewModel(locationRepository)
+        viewModel = NavigationViewModel(locationRepository, pdfRepository)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -137,7 +139,7 @@ class NavigationViewModelTests {
         coEvery {
             locRepository.listenToLocation(any(), any())
         } returns TestRoute.getLocations().asFlow()
-        val viewModel = NavigationViewModel(locRepository)
+        val viewModel = NavigationViewModel(locRepository, pdfRepository)
 
         assertEquals(TestRoute.getDistance(), viewModel.uiState.partial)
         assertEquals(TestRoute.getDistance(), viewModel.uiState.total)

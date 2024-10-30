@@ -1,4 +1,4 @@
-package org.giste.navigator.ui
+package org.giste.navigator.model
 
 import android.graphics.Bitmap
 

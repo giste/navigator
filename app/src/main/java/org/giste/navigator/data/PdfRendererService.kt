@@ -10,9 +10,11 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.giste.navigator.ui.PdfPage
+import org.giste.navigator.model.PdfPage
 
 private const val CLASS_NAME = "PdfRendererService"
+private const val TARGET_DPI = 144
+private const val DEFAULT_DPI = 72
 
 class PdfRendererService(
     private val uri: Uri,
@@ -57,8 +59,10 @@ class PdfRendererService(
      */
     private fun drawBitmapLogic(page: PdfRenderer.Page): Bitmap {
         val bitmap = Bitmap.createBitmap(
-            page.width,
-            page.height,
+            page.width * TARGET_DPI / DEFAULT_DPI,
+            page.height * TARGET_DPI / DEFAULT_DPI,
+            //page.width * 2,
+            //page.height * 2,
             Bitmap.Config.ARGB_8888,
         )
 

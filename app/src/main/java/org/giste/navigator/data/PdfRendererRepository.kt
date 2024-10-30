@@ -7,8 +7,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import org.giste.navigator.ui.PdfPage
-import org.giste.navigator.ui.PdfRepository
+import org.giste.navigator.model.PdfPage
+import org.giste.navigator.model.PdfRepository
 import javax.inject.Inject
 
 class PdfRendererRepository @Inject constructor(

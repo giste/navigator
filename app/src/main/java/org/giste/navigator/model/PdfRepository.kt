@@ -1,4 +1,4 @@
-package org.giste.navigator.ui
+package org.giste.navigator.model
 
 import android.net.Uri
 import androidx.paging.PagingData

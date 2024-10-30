@@ -3,7 +3,7 @@ package org.giste.navigator.data
 import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import org.giste.navigator.ui.PdfPage
+import org.giste.navigator.model.PdfPage
 import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject

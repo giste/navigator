@@ -15,18 +15,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.giste.navigator.ui.ManagePermissions
 import org.giste.navigator.ui.NavigationLandscapeScreen
 import org.giste.navigator.ui.NavigationViewModel
-import org.giste.navigator.ui.PdfScreen
-import org.giste.navigator.ui.PdfViewModel
 import org.giste.navigator.ui.theme.NavigatorTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    //private val viewModel: NavigationViewModel by viewModels()
-    private val pdfViewModel: PdfViewModel by viewModels()
+    private val viewModel: NavigationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,11 +33,8 @@ class MainActivity : ComponentActivity() {
             val activity = LocalContext.current as Activity
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-//            NavigatorTheme {
-//                NavigationScreen(viewModel)
-//            }
             NavigatorTheme {
-                PdfScreen(pdfViewModel)
+                NavigationScreen(viewModel)
             }
         }
     }
@@ -54,6 +49,7 @@ fun NavigationPreview() {
     NavigatorTheme {
         NavigationContent(
             state = NavigationViewModel.UiState(),
+            roadbookState = NavigationViewModel.RoadbookState.NotLoaded,
             onEvent = {},
         )
     }
@@ -63,6 +59,7 @@ fun NavigationPreview() {
 fun NavigationScreen(viewModel: NavigationViewModel) {
     NavigationContent(
         state = viewModel.uiState,
+        roadbookState = viewModel.roadbookState.collectAsStateWithLifecycle().value,
         onEvent = viewModel::onEvent,
     )
 }
@@ -70,6 +67,7 @@ fun NavigationScreen(viewModel: NavigationViewModel) {
 @Composable
 fun NavigationContent(
     state: NavigationViewModel.UiState,
+    roadbookState: NavigationViewModel.RoadbookState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
 ) {
     ManagePermissions()
@@ -77,7 +75,8 @@ fun NavigationContent(
         modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         NavigationLandscapeScreen(
-            state = state,
+            uiState = state,
+            roadbookState = roadbookState,
             onEvent = onEvent,
             modifier = Modifier
                 .padding(innerPadding)

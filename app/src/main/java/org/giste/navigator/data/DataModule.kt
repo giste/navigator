@@ -7,7 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.giste.navigator.ui.LocationRepository
-import org.giste.navigator.ui.PdfRepository
+import org.giste.navigator.model.PdfRepository
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)

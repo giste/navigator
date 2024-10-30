@@ -1,19 +1,27 @@
 package org.giste.navigator.ui
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.giste.navigator.model.PdfPage
+import org.giste.navigator.model.PdfRepository
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
-    private val locationRepository: LocationRepository
+    private val locationRepository: LocationRepository,
+    private val pdfRepository: PdfRepository,
 ) : ViewModel() {
     data class UiState(
         val partial: Int = 0,
@@ -24,6 +32,18 @@ class NavigationViewModel @Inject constructor(
         private set
 
     private var lastLocation by mutableStateOf<Location?>(null)
+
+    private var roadbookUri = mutableStateOf(Uri.EMPTY)
+
+    /**
+     * The internal mutable state flow that holds the current display state of the PDF.
+     */
+    private val _roadbookState = MutableStateFlow<RoadbookState>(RoadbookState.NotLoaded)
+
+    /**
+     * A public immutable state flow that exposes the current display state of the PDF.
+     */
+    val roadbookState = _roadbookState.asStateFlow()
 
     init {
         startListenForLocations()
@@ -87,6 +107,11 @@ class NavigationViewModel @Inject constructor(
         }
     }
 
+    private fun setRoadbookUri(uri: Uri) {
+        this.roadbookUri.value = uri
+        this._roadbookState.value = RoadbookState.Loaded(pdfRepository.getPdfStream(uri))
+    }
+
     sealed class UiEvent {
         data object DecreasePartial: UiEvent()
         data object ResetPartial: UiEvent()
@@ -94,6 +119,7 @@ class NavigationViewModel @Inject constructor(
         data object ResetAll: UiEvent()
         data class SetPartial(val partial: String): UiEvent()
         data class SetTotal(val total: String): UiEvent()
+        data class SetUri(val uri: Uri): UiEvent()
     }
 
     fun onEvent(event: UiEvent) {
@@ -104,7 +130,14 @@ class NavigationViewModel @Inject constructor(
             is UiEvent.ResetAll -> { resetAll() }
             is UiEvent.SetPartial -> { setPartial(event.partial)}
             is UiEvent.SetTotal -> { setTotal(event.total) }
+            is UiEvent.SetUri -> { setRoadbookUri(event.uri) }
         }
     }
+
+    sealed class RoadbookState() {
+        data object NotLoaded : RoadbookState()
+        data class Loaded(val pages: Flow<PagingData<PdfPage>>) : RoadbookState()
+    }
+
 }
 
