@@ -48,8 +48,7 @@ class NavigationViewModel @Inject constructor(
     private fun startListenForLocations() {
         locationRepository.listenToLocation(1_000L, 10f).onEach { newLocation ->
             lastLocation?.let {
-                val d = it.distanceTo(newLocation)
-                val distance = d.roundToInt()
+                val distance = it.distanceTo(newLocation).roundToInt()
                 tripState = tripState.copy(
                     partial = tripState.partial + distance,
                     total = tripState.total + distance,
