@@ -69,7 +69,7 @@ fun ManagePermissions() {
                             Uri.fromParts("package", context.packageName, null)
                         )
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(context, intent, null)
+                        context.startActivity(intent, null)
                     },
                     modifier = Modifier.fillMaxWidth(.45f)
                         .border(2.dp, Color.Blue)

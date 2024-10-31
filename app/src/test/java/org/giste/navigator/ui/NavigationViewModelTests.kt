@@ -134,7 +134,7 @@ class NavigationViewModelTests {
     }
 
     @Test
-    fun `when locations are collected it should calculate distances`() = runTest {
+    fun `when locations are collected distances should be calculated`() = runTest {
         val locRepository: LocationRepository = mockk()
         coEvery {
             locRepository.listenToLocation(any(), any())
