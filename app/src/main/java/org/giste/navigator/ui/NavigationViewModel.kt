@@ -134,7 +134,7 @@ class NavigationViewModel @Inject constructor(
         }
     }
 
-    sealed class RoadbookState() {
+    sealed class RoadbookState {
         data object NotLoaded : RoadbookState()
         data class Loaded(val pages: Flow<PagingData<PdfPage>>) : RoadbookState()
     }
