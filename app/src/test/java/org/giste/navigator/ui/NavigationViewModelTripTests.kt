@@ -4,13 +4,8 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfRepository
 import org.junit.jupiter.api.AfterEach
@@ -24,18 +19,15 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @DisplayName("Tests for NavigationViewModel")
 @ExtendWith(MockKExtension::class)
-class NavigationViewModelTests {
+@ExtendWith(MainDispatcherExtension::class)
+class NavigationViewModelTripTests {
 
     private val locationRepository: LocationRepository = mockk()
     private val pdfRepository: PdfRepository = mockk()
     private lateinit var viewModel: NavigationViewModel
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeEach
     fun beforeEach() {
-        //TODO: Rule or subclass???
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-
         coEvery {
             locationRepository.listenToLocation(any(), any())
         } returns EmptyRoute.getLocations().asFlow()
@@ -43,10 +35,8 @@ class NavigationViewModelTests {
         viewModel = NavigationViewModel(locationRepository, pdfRepository)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @AfterEach
     fun afterEach() {
-        Dispatchers.resetMain()
         clearAllMocks()
     }
 
