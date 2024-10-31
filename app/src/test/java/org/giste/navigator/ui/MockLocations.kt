@@ -1,5 +1,7 @@
 package org.giste.navigator.ui
 
+import org.giste.navigator.model.Location
+
 interface MockLocations {
     fun getDistance(): Int
     fun getLocations(): List<Location>

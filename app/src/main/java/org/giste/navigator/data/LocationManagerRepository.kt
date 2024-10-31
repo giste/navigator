@@ -12,8 +12,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import org.giste.navigator.ui.Location
-import org.giste.navigator.ui.LocationRepository
+import org.giste.navigator.model.Location
+import org.giste.navigator.model.LocationRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

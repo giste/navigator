@@ -1,4 +1,4 @@
-package org.giste.navigator.ui
+package org.giste.navigator.model
 
 import kotlinx.coroutines.flow.Flow
 

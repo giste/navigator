@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.giste.navigator.model.Location
+import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.PdfRepository
 import javax.inject.Inject
