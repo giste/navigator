@@ -25,16 +25,10 @@ class NavigationViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val pdfRepository: PdfRepository,
 ) : ViewModel() {
-    data class UiState(
-        val partial: Int = 0,
-        val total: Int = 0,
-    )
-
-    var uiState by mutableStateOf(UiState())
+    var tripState by mutableStateOf(TripState())
         private set
 
     private var lastLocation by mutableStateOf<Location?>(null)
-
     private var roadbookUri = mutableStateOf(Uri.EMPTY)
 
     /**
@@ -56,9 +50,9 @@ class NavigationViewModel @Inject constructor(
             lastLocation?.let {
                 val d = it.distanceTo(newLocation)
                 val distance = d.roundToInt()
-                uiState = uiState.copy(
-                    partial = uiState.partial + distance,
-                    total = uiState.total + distance,
+                tripState = tripState.copy(
+                    partial = tripState.partial + distance,
+                    total = tripState.total + distance,
                 )
             }
             lastLocation = newLocation
@@ -66,30 +60,30 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun resetPartial() {
-        uiState = uiState.copy(partial = 0)
+        tripState = tripState.copy(partial = 0)
     }
 
     private fun decreasePartial() {
-        if (uiState.partial > 0) {
-            uiState = uiState.copy(partial = uiState.partial - 10)
+        if (tripState.partial > 0) {
+            tripState = tripState.copy(partial = tripState.partial - 10)
         }
     }
 
     private fun increasePartial() {
-        if (uiState.partial < 999_990) {
-            uiState = uiState.copy(partial = uiState.partial + 10)
+        if (tripState.partial < 999_990) {
+            tripState = tripState.copy(partial = tripState.partial + 10)
         }
     }
 
     private fun resetAll() {
-        uiState = uiState.copy(partial = 0, total = 0)
+        tripState = tripState.copy(partial = 0, total = 0)
     }
 
     private fun setPartial(partial: String) {
         val meters = partial.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..999_990) {
-            uiState = uiState.copy(partial = meters)
+            tripState = tripState.copy(partial = meters)
         } else {
             throw IllegalArgumentException(
                 "Partial must represent a number between 0 and ${"%,.2f".format(999.99f)}"
@@ -101,7 +95,7 @@ class NavigationViewModel @Inject constructor(
         val meters = total.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..9_999_990) {
-            uiState = uiState.copy(total = meters)
+            tripState = tripState.copy(total = meters)
         } else {
             throw IllegalArgumentException(
                 "Total must represent a number between 0 and ${"%,.2f".format(9999.99f)}"
@@ -135,6 +129,11 @@ class NavigationViewModel @Inject constructor(
             is UiEvent.SetUri -> { setRoadbookUri(event.uri) }
         }
     }
+
+    data class TripState(
+        val partial: Int = 0,
+        val total: Int = 0,
+    )
 
     sealed class RoadbookState {
         data object NotLoaded : RoadbookState()

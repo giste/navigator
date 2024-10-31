@@ -59,7 +59,7 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 fun NavigationLandscapePreview() {
     NavigatorTheme {
         NavigationLandscapeContent(
-            state = NavigationViewModel.UiState(123456, 1234567),
+            state = NavigationViewModel.TripState(123456, 1234567),
             roadbookState = NavigationViewModel.RoadbookState.NotLoaded,
             onEvent = {},
         )
@@ -68,13 +68,13 @@ fun NavigationLandscapePreview() {
 
 @Composable
 fun NavigationLandscapeScreen(
-    uiState: NavigationViewModel.UiState,
+    tripState: NavigationViewModel.TripState,
     roadbookState: NavigationViewModel.RoadbookState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavigationLandscapeContent(
-        state = uiState,
+        state = tripState,
         roadbookState = roadbookState,
         onEvent = onEvent,
         modifier = modifier,
@@ -83,7 +83,7 @@ fun NavigationLandscapeScreen(
 
 @Composable
 fun NavigationLandscapeContent(
-    state: NavigationViewModel.UiState,
+    state: NavigationViewModel.TripState,
     roadbookState: NavigationViewModel.RoadbookState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
     modifier: Modifier = Modifier,
@@ -103,7 +103,7 @@ fun NavigationLandscapeContent(
                     .weight(2f)
                     .fillMaxHeight()
             ) {
-                DistanceTotal(
+                TripTotal(
                     distance = "%,.2f".format(state.total.div(1000f)),
                     onClick = {},
                     modifier = Modifier
@@ -111,7 +111,7 @@ fun NavigationLandscapeContent(
                         .padding(horizontal = padding),
                 )
                 HorizontalDivider()
-                DistancePartial(
+                TripPartial(
                     distance = "%,.2f".format(state.partial.div(1000f)),
                     onClick = { showPartialSettingDialog.value = true },
                     modifier = Modifier
@@ -163,7 +163,7 @@ fun NavigationLandscapeContent(
 }
 
 @Composable
-fun DistanceTotal(
+fun TripTotal(
     distance: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -181,7 +181,7 @@ fun DistanceTotal(
 }
 
 @Composable
-fun DistancePartial(
+fun TripPartial(
     distance: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

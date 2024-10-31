@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 fun NavigationPreview() {
     NavigatorTheme {
         NavigationContent(
-            state = NavigationViewModel.UiState(),
+            state = NavigationViewModel.TripState(),
             roadbookState = NavigationViewModel.RoadbookState.NotLoaded,
             onEvent = {},
         )
@@ -58,7 +58,7 @@ fun NavigationPreview() {
 @Composable
 fun NavigationScreen(viewModel: NavigationViewModel) {
     NavigationContent(
-        state = viewModel.uiState,
+        state = viewModel.tripState,
         roadbookState = viewModel.roadbookState.collectAsStateWithLifecycle().value,
         onEvent = viewModel::onEvent,
     )
@@ -66,7 +66,7 @@ fun NavigationScreen(viewModel: NavigationViewModel) {
 
 @Composable
 fun NavigationContent(
-    state: NavigationViewModel.UiState,
+    state: NavigationViewModel.TripState,
     roadbookState: NavigationViewModel.RoadbookState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
 ) {
@@ -75,7 +75,7 @@ fun NavigationContent(
         modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         NavigationLandscapeScreen(
-            uiState = state,
+            tripState = state,
             roadbookState = roadbookState,
             onEvent = onEvent,
             modifier = Modifier
