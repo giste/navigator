@@ -11,9 +11,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.giste.navigator.model.Location
+import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.PdfRepository
@@ -46,7 +48,12 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun startListenForLocations() {
-        locationRepository.listenToLocation(1_000L, 10f).onEach { newLocation ->
+        locationRepository.listenToLocation(1_000L, 10f)
+            .catch {
+                // Location exceptions should be managed by permissions screen
+                e -> if (e !is LocationPermissionException) throw e
+            }
+            .onEach { newLocation ->
             lastLocation?.let {
                 val distance = it.distanceTo(newLocation).roundToInt()
                 tripState = tripState.copy(
