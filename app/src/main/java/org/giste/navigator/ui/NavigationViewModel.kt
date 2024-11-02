@@ -10,10 +10,13 @@ import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
@@ -32,17 +35,17 @@ class NavigationViewModel @Inject constructor(
     val tripState = _tripState.asStateFlow()
 
     private var lastLocation by mutableStateOf<Location?>(null)
-    private var roadbookUri = mutableStateOf(Uri.EMPTY)
 
-    /**
-     * The internal mutable state flow that holds the current display state of the PDF.
-     */
-    private val _roadbookState = MutableStateFlow<RoadbookState>(RoadbookState.NotLoaded)
-
-    /**
-     * A public immutable state flow that exposes the current display state of the PDF.
-     */
-    val roadbookState = _roadbookState.asStateFlow()
+    private val roadbookUri = MutableStateFlow(Uri.EMPTY)
+    val roadbookState = roadbookUri
+        .map {
+            if (it == Uri.EMPTY) {
+                RoadbookState.NotLoaded
+            } else {
+                RoadbookState.Loaded(pdfRepository.getPdfStream(it))
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, RoadbookState.NotLoaded)
 
     init {
         startListenForLocations()
@@ -121,8 +124,7 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun setRoadbookUri(uri: Uri) {
-        this.roadbookUri.value = uri
-        this._roadbookState.value = RoadbookState.Loaded(pdfRepository.getPdfStream(uri))
+        this.roadbookUri.update { uri }
     }
 
     sealed class UiEvent {
