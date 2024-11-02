@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
@@ -27,8 +28,8 @@ class NavigationViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val pdfRepository: PdfRepository,
 ) : ViewModel() {
-    var tripState by mutableStateOf(TripState())
-        private set
+    private val _tripState = MutableStateFlow(TripState())
+    val tripState = _tripState.asStateFlow()
 
     private var lastLocation by mutableStateOf<Location?>(null)
     private var roadbookUri = mutableStateOf(Uri.EMPTY)
@@ -56,40 +57,48 @@ class NavigationViewModel @Inject constructor(
             .onEach { newLocation ->
             lastLocation?.let {
                 val distance = it.distanceTo(newLocation).roundToInt()
-                tripState = tripState.copy(
-                    partial = tripState.partial + distance,
-                    total = tripState.total + distance,
-                )
+                _tripState.update { currentTripState ->
+                    currentTripState.copy(
+                        partial = currentTripState.partial + distance,
+                        total = currentTripState.total + distance,
+                    )
+                }
             }
             lastLocation = newLocation
         }.launchIn(viewModelScope)
     }
 
     private fun resetPartial() {
-        tripState = tripState.copy(partial = 0)
+        _tripState.update { currentTripState ->
+            currentTripState.copy(partial = 0)
+        }
     }
 
     private fun decreasePartial() {
-        if (tripState.partial > 0) {
-            tripState = tripState.copy(partial = tripState.partial - 10)
+        _tripState.update { currentTripState ->
+            currentTripState.copy(partial = (currentTripState.partial - 10).coerceAtLeast(0))
         }
     }
 
     private fun increasePartial() {
-        if (tripState.partial < 999_990) {
-            tripState = tripState.copy(partial = tripState.partial + 10)
+        _tripState.update { currentTripState ->
+            currentTripState.copy(partial = (currentTripState.partial + 10).coerceAtMost(999_990))
         }
     }
 
     private fun resetAll() {
-        tripState = tripState.copy(partial = 0, total = 0)
+        _tripState.update { currentTripState ->
+            currentTripState.copy(partial = 0, total = 0)
+        }
     }
 
     private fun setPartial(partial: String) {
         val meters = partial.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..999_990) {
-            tripState = tripState.copy(partial = meters)
+            _tripState.update { currentTripState ->
+                currentTripState.copy(partial = meters)
+            }
         } else {
             throw IllegalArgumentException(
                 "Partial must represent a number between 0 and ${"%,.2f".format(999.99f)}"
@@ -101,7 +110,9 @@ class NavigationViewModel @Inject constructor(
         val meters = total.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..9_999_990) {
-            tripState = tripState.copy(total = meters)
+            _tripState.update { currentTripState ->
+                currentTripState.copy(total = meters)
+            }
         } else {
             throw IllegalArgumentException(
                 "Total must represent a number between 0 and ${"%,.2f".format(9999.99f)}"

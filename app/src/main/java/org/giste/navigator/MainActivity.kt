@@ -1,7 +1,6 @@
 package org.giste.navigator
 
 import android.app.Activity
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -59,7 +58,7 @@ fun NavigationPreview() {
 @Composable
 fun NavigationScreen(viewModel: NavigationViewModel) {
     NavigationContent(
-        state = viewModel.tripState,
+        state = viewModel.tripState.collectAsStateWithLifecycle().value,
         roadbookState = viewModel.roadbookState.collectAsStateWithLifecycle().value,
         onEvent = viewModel::onEvent,
     )
