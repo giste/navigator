@@ -19,7 +19,7 @@ private const val DEFAULT_DPI = 72
 class PdfRendererService(
     private val uri: Uri,
     private val context: Context,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : PdfService {
     private val pdfRenderer by lazy {
         PdfRenderer(context.contentResolver.openFileDescriptor(uri, "r")!!)
@@ -36,14 +36,16 @@ class PdfRendererService(
 
         val bitmaps = mutableListOf<PdfPage>()
 
-        pdfRenderer.let {
-            for (index in startPosition.coerceAtLeast(0) until (startPosition + loadSize).coerceAtMost(
-                it.pageCount
-            )) {
-                Log.d(CLASS_NAME, "Processing page $index")
-                it.openPage(index).use { page ->
-                    val bitmap = drawBitmapLogic(page)
-                    bitmaps.add(PdfPage(index, bitmap))
+        withContext(dispatcher) {
+            pdfRenderer.let {
+                for (index in startPosition.coerceAtLeast(0) until (startPosition + loadSize).coerceAtMost(
+                    it.pageCount
+                )) {
+                    Log.d(CLASS_NAME, "Processing page $index")
+                    it.openPage(index).use { page ->
+                        val bitmap = drawBitmapLogic(page)
+                        bitmaps.add(PdfPage(index, bitmap))
+                    }
                 }
             }
         }

@@ -8,6 +8,8 @@ import android.location.LocationListener
 import android.location.LocationManager
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -20,7 +22,8 @@ import javax.inject.Singleton
 
 @Singleton
 class LocationManagerRepository @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : LocationRepository {
     private val locationManager by lazy {
         getSystemService(context, LocationManager::class.java) as LocationManager
@@ -29,10 +32,10 @@ class LocationManagerRepository @Inject constructor(
     @SuppressLint("MissingPermission")
     override fun listenToLocation(minTime: Long, minDistance: Float): Flow<Location> {
         return callbackFlow {
-            if(!hasLocationPermission()) throw LocationPermissionException()
+            if (!hasLocationPermission()) throw LocationPermissionException()
             val locationCallback = LocationListener { location ->
                 location.let {
-                    launch { send(Location(it.latitude, it.longitude, it.altitude)) }
+                    launch(dispatcher) { send(Location(it.latitude, it.longitude, it.altitude)) }
                 }
             }
 
