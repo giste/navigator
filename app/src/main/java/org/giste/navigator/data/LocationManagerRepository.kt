@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import org.giste.navigator.model.Location
+import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,8 +29,7 @@ class LocationManagerRepository @Inject constructor(
     @SuppressLint("MissingPermission")
     override fun listenToLocation(minTime: Long, minDistance: Float): Flow<Location> {
         return callbackFlow {
-            //TODO: LocationPermissionException
-            if(!hasLocationPermission()) throw Exception()
+            if(!hasLocationPermission()) throw LocationPermissionException()
             val locationCallback = LocationListener { location ->
                 location.let {
                     launch { send(Location(it.latitude, it.longitude, it.altitude)) }
