@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfRepository
@@ -47,14 +48,14 @@ class NavigationViewModelTripTests {
         fun `increase() should add 10 meters`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
-            assertEquals(10, viewModel.tripState.partial)
+            assertEquals(10, viewModel.tripState.first().partial)
         }
 
         @Test
-        fun `decrease() should not change partial`() {
+        fun `decrease() should not change partial`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
 
-            assertEquals(0, viewModel.tripState.partial)
+            assertEquals(0, viewModel.tripState.first().partial)
         }
     }
 
@@ -67,17 +68,17 @@ class NavigationViewModelTripTests {
         }
 
         @Test
-        fun `increase() should not change partial`() {
+        fun `increase() should not change partial`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
-            assertEquals(999990, viewModel.tripState.partial)
+            assertEquals(999990, viewModel.tripState.first().partial)
         }
 
         @Test
-        fun `decrease() should subtract 10 meters`() {
+        fun `decrease() should subtract 10 meters`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
 
-            assertEquals(999980, viewModel.tripState.partial)
+            assertEquals(999980, viewModel.tripState.first().partial)
         }
     }
 
@@ -91,18 +92,18 @@ class NavigationViewModelTripTests {
         }
 
         @Test
-        fun `resetPartial() should set partial to 0`() {
+        fun `resetPartial() should set partial to 0`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.ResetPartial)
 
-            assertEquals(0, viewModel.tripState.partial)
+            assertEquals(0, viewModel.tripState.first().partial)
         }
 
         @Test
-        fun `resetAll() should set partial and total to 0`() {
+        fun `resetAll() should set partial and total to 0`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.ResetAll)
 
-            assertEquals(0, viewModel.tripState.partial)
-            assertEquals(0, viewModel.tripState.total)
+            assertEquals(0, viewModel.tripState.first().partial)
+            assertEquals(0, viewModel.tripState.first().total)
         }
     }
 
@@ -110,14 +111,14 @@ class NavigationViewModelTripTests {
     @Nested
     inner class SetPartialTests {
         @Test
-        fun `when it's in 0-999 should update partial`() {
+        fun `when it's in 0-999 should update partial`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("123,45"))
 
-            assertEquals(123450, viewModel.tripState.partial)
+            assertEquals(123450, viewModel.tripState.first().partial)
         }
 
         @Test
-        fun `when it's out of range should throw IllegalArgumentException`() {
+        fun `when it's out of range should throw IllegalArgumentException`() = runTest {
             assertThrows(IllegalArgumentException::class.java) {
                 viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("1000,00"))
             }
@@ -132,8 +133,7 @@ class NavigationViewModelTripTests {
         } returns TestRoute.getLocations().asFlow()
         val viewModel = NavigationViewModel(locRepository, pdfRepository)
 
-        assertEquals(TestRoute.getDistance(), viewModel.tripState.partial)
-        assertEquals(TestRoute.getDistance(), viewModel.tripState.total)
+        assertEquals(TestRoute.getDistance(), viewModel.tripState.first().partial)
+        assertEquals(TestRoute.getDistance(), viewModel.tripState.first().total)
     }
-
 }
