@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import org.giste.navigator.MainActivity
@@ -71,7 +70,8 @@ fun ManagePermissions() {
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         context.startActivity(intent, null)
                     },
-                    modifier = Modifier.fillMaxWidth(.45f)
+                    modifier = Modifier
+                        .fillMaxWidth(.45f)
                         .border(2.dp, Color.Blue)
                 ) {
                     Icon(
@@ -89,7 +89,8 @@ fun ManagePermissions() {
                         MainActivity().finish()
                         exitProcess(0)
                     },
-                    modifier = Modifier.fillMaxWidth(.45f)
+                    modifier = Modifier
+                        .fillMaxWidth(.45f)
                         .border(2.dp, Color.Blue)
                 ) {
                     Icon(

@@ -100,7 +100,7 @@ class NavigationViewModelTripTests {
 
         @Test
         fun `resetAll() should set partial and total to 0`() = runTest {
-            viewModel.onEvent(NavigationViewModel.UiEvent.ResetAll)
+            viewModel.onEvent(NavigationViewModel.UiEvent.ResetTrip)
 
             assertEquals(0, viewModel.tripState.first().partial)
             assertEquals(0, viewModel.tripState.first().total)

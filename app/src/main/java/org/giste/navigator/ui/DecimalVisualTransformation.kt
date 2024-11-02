@@ -81,6 +81,7 @@ class DecimalVisualTransformation(
                 unmaskedText.length <= decimalDigits -> {
                     maskedText.length - (unmaskedText.length - offset)
                 }
+
                 else -> {
                     offset + offsetMaskCount(offset, maskedText)
                 }
@@ -91,6 +92,7 @@ class DecimalVisualTransformation(
                 unmaskedText.length <= decimalDigits -> {
                     max(unmaskedText.length - (maskedText.length - offset), 0)
                 }
+
                 else -> {
                     offset - maskedText.take(offset).count { !it.isDigit() }
                 }

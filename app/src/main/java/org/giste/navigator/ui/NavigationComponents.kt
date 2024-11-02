@@ -219,7 +219,7 @@ fun CommandBar(
             modifier = Modifier.weight(1f)
         )
         CommandBarButton(
-            onClick = { onEvent(NavigationViewModel.UiEvent.ResetAll) },
+            onClick = { onEvent(NavigationViewModel.UiEvent.ResetTrip) },
             icon = Icons.Default.Clear,
             contentDescription = "Reset All",
             modifier = Modifier.weight(1f)

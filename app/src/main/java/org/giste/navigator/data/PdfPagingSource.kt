@@ -37,7 +37,10 @@ class PdfPagingSource @Inject constructor(
                 (position + params.loadSize).coerceAtMost(pageCount)
             }
 
-            Log.d(CLASS_NAME, "position: $position; nextKey: $nextKey; prevKey: $prevKey; count: $pageCount")
+            Log.d(
+                CLASS_NAME,
+                "position: $position; nextKey: $nextKey; prevKey: $prevKey; count: $pageCount"
+            )
 
             return LoadResult.Page(bitmaps, prevKey, nextKey)
 
@@ -45,7 +48,7 @@ class PdfPagingSource @Inject constructor(
             return LoadResult.Error(e)
         } catch (e: SecurityException) {
             return LoadResult.Error(e)
-        } catch(e: FileNotFoundException) {
+        } catch (e: FileNotFoundException) {
             return LoadResult.Error(e)
         }
     }

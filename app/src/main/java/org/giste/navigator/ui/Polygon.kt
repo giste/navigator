@@ -68,7 +68,8 @@ fun Polygon() {
 
     val widthInch = widthPixels.toFloat() / xdpi
     val heightInch = heightPixels.toFloat() / ydpi
-    val diagonalInch = sqrt(widthInch * widthInch + heightInch * heightInch).times(100).toInt().toFloat().div(100)
+    val diagonalInch =
+        sqrt(widthInch * widthInch + heightInch * heightInch).times(100).toInt().toFloat().div(100)
 
     val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
 
@@ -77,7 +78,9 @@ fun Polygon() {
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(8.dp).fillMaxSize(1f),
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxSize(1f),
     ) {
         Text(text = "widthPixels = $widthPixels", style = style)
         Text(text = "heightPixels = $heightPixels", style = style)

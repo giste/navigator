@@ -54,21 +54,22 @@ class NavigationViewModel @Inject constructor(
     private fun startListenForLocations() {
         locationRepository.listenToLocation(1_000L, 10f)
             .catch {
-                // Location exceptions should be managed by permissions screen
-                e -> if (e !is LocationPermissionException) throw e
+                // Location permissions exceptions should be managed by permissions screen
+                    e ->
+                if (e !is LocationPermissionException) throw e
             }
             .onEach { newLocation ->
-            lastLocation?.let {
-                val distance = it.distanceTo(newLocation).roundToInt()
-                _tripState.update { currentTripState ->
-                    currentTripState.copy(
-                        partial = currentTripState.partial + distance,
-                        total = currentTripState.total + distance,
-                    )
+                lastLocation?.let {
+                    val distance = it.distanceTo(newLocation).roundToInt()
+                    _tripState.update { currentTripState ->
+                        currentTripState.copy(
+                            partial = currentTripState.partial + distance,
+                            total = currentTripState.total + distance,
+                        )
+                    }
                 }
-            }
-            lastLocation = newLocation
-        }.launchIn(viewModelScope)
+                lastLocation = newLocation
+            }.launchIn(viewModelScope)
     }
 
     private fun resetPartial() {
@@ -89,7 +90,7 @@ class NavigationViewModel @Inject constructor(
         }
     }
 
-    private fun resetAll() {
+    private fun resetTrip() {
         _tripState.update { currentTripState ->
             currentTripState.copy(partial = 0, total = 0)
         }
@@ -128,24 +129,44 @@ class NavigationViewModel @Inject constructor(
     }
 
     sealed class UiEvent {
-        data object DecreasePartial: UiEvent()
-        data object ResetPartial: UiEvent()
-        data object IncreasePartial: UiEvent()
-        data object ResetAll: UiEvent()
-        data class SetPartial(val partial: String): UiEvent()
-        data class SetTotal(val total: String): UiEvent()
-        data class SetUri(val uri: Uri): UiEvent()
+        data object DecreasePartial : UiEvent()
+        data object ResetPartial : UiEvent()
+        data object IncreasePartial : UiEvent()
+        data object ResetTrip : UiEvent()
+        data class SetPartial(val partial: String) : UiEvent()
+        data class SetTotal(val total: String) : UiEvent()
+        data class SetUri(val uri: Uri) : UiEvent()
     }
 
     fun onEvent(event: UiEvent) {
-        when(event){
-            is UiEvent.DecreasePartial -> { decreasePartial() }
-            is UiEvent.ResetPartial -> { resetPartial() }
-            is UiEvent.IncreasePartial -> { increasePartial() }
-            is UiEvent.ResetAll -> { resetAll() }
-            is UiEvent.SetPartial -> { setPartial(event.partial)}
-            is UiEvent.SetTotal -> { setTotal(event.total) }
-            is UiEvent.SetUri -> { setRoadbookUri(event.uri) }
+        when (event) {
+            is UiEvent.DecreasePartial -> {
+                decreasePartial()
+            }
+
+            is UiEvent.ResetPartial -> {
+                resetPartial()
+            }
+
+            is UiEvent.IncreasePartial -> {
+                increasePartial()
+            }
+
+            is UiEvent.ResetTrip -> {
+                resetTrip()
+            }
+
+            is UiEvent.SetPartial -> {
+                setPartial(event.partial)
+            }
+
+            is UiEvent.SetTotal -> {
+                setTotal(event.total)
+            }
+
+            is UiEvent.SetUri -> {
+                setRoadbookUri(event.uri)
+            }
         }
     }
 

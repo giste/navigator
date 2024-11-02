@@ -19,10 +19,11 @@ data class Location(
         val lat2 = toRad(otherLocation.latitude)
         val lon1 = toRad(this.longitude)
         val lon2 = toRad(otherLocation.longitude)
-        val distance = earthRadius * acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon2 - lon1))
+        val distance =
+            earthRadius * acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon2 - lon1))
 
         return distance * 1000
     }
 
-    private fun toRad(degrees: Double): Double = degrees * PI/180
+    private fun toRad(degrees: Double): Double = degrees * PI / 180
 }
