@@ -1,20 +1,31 @@
 package org.giste.navigator.ui
 
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.giste.navigator.R
 import org.giste.navigator.ui.theme.NavigatorTheme
 
@@ -60,7 +71,31 @@ fun NavigationLandscapeContent(
     val showPartialSettingDialog = remember { mutableStateOf(false) }
     val showTotalSettingDialog = remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .focusable()
+            .testTag("NavigationLandscape")
+            .onKeyEvent {
+                if (it.type == KeyEventType.KeyUp) {
+                    when (it.key) {
+                        Key.DirectionRight -> {
+                            onEvent(NavigationViewModel.UiEvent.IncreasePartial)
+                            return@onKeyEvent true
+                        }
+
+                        Key.DirectionLeft -> {
+                            onEvent(NavigationViewModel.UiEvent.DecreasePartial)
+                            return@onKeyEvent true
+                        }
+
+                        else -> return@onKeyEvent false
+                    }
+                } else {
+                    false
+                }
+            }
+    ) {
         Row(
             modifier = Modifier
                 .weight(9f)

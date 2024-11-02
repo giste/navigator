@@ -1,6 +1,7 @@
 package org.giste.navigator
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -24,9 +25,9 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel: NavigationViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        val viewModel: NavigationViewModel by viewModels()
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
