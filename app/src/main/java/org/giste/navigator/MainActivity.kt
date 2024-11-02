@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.AndroidEntryPoint
 import org.giste.navigator.ui.ManagePermissions
 import org.giste.navigator.ui.NavigationLandscapeScreen
@@ -25,8 +25,6 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val viewModel: NavigationViewModel by viewModels()
-
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -34,7 +32,7 @@ class MainActivity : ComponentActivity() {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
             NavigatorTheme {
-                NavigationScreen(viewModel)
+                NavigationScreen()
             }
         }
     }
@@ -56,11 +54,11 @@ fun NavigationPreview() {
 }
 
 @Composable
-fun NavigationScreen(viewModel: NavigationViewModel) {
+fun NavigationScreen(vm: NavigationViewModel = viewModel()) {
     NavigationContent(
-        state = viewModel.tripState.collectAsStateWithLifecycle().value,
-        roadbookState = viewModel.roadbookState.collectAsStateWithLifecycle().value,
-        onEvent = viewModel::onEvent,
+        state = vm.tripState.collectAsStateWithLifecycle().value,
+        roadbookState = vm.roadbookState.collectAsStateWithLifecycle().value,
+        onEvent = vm::onEvent,
     )
 }
 
