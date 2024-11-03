@@ -25,28 +25,14 @@ class NavigationLandscapeScreenInstrumentedTests {
 
     @RegisterExtension
     @JvmField
-    var permissions = GrantPermissionExtension.grant(
+    val permissions = GrantPermissionExtension.grant(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
     )
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun `when right key is pressed partial should be increased by 1`() {
-        extension.use {
-            waitForIdle()
-            onNodeWithTag(NAVIGATION_LANDSCAPE).performKeyInput {
-                pressKey(Key.DirectionRight)
-            }
-
-            waitForIdle()
-            onNodeWithTag(TRIP_PARTIAL).assertTextEquals("%,.2f".format(10.div(1000f)))
-        }
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testPartial() {
+    fun testPartialButtonsAndKeys() {
         extension.use {
             // Increment by screen button click
             waitForIdle()
