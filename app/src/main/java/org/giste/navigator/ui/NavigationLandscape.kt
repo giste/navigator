@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import org.giste.navigator.R
 import org.giste.navigator.ui.theme.NavigatorTheme
 
+const val NAVIGATION_LANDSCAPE = "NAVIGATION_LANDSCAPE"
+
 @Preview(
     name = "Tab Active 3",
     showBackground = true,
@@ -69,9 +71,9 @@ fun NavigationLandscapeContent(
 
     Column(
         modifier = modifier
+            .testTag(NAVIGATION_LANDSCAPE)
             .fillMaxSize()
             .focusable()
-            .testTag("NavigationLandscape")
             .onKeyEvent {
                 if (it.type == KeyEventType.KeyUp) {
                     when (it.key) {

@@ -29,6 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -37,7 +41,13 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
+import org.giste.navigator.R
 import org.giste.navigator.model.PdfPage
+
+const val TRIP_PARTIAL = "TRIP_PARTIAL"
+const val INCREASE_PARTIAL = "INCREASE_PARTIAL"
+const val DECREASE_PARTIAL = "DECREASE_PARTIAL"
+const val RESET_PARTIAL = "RESET_PARTIAL"
 
 @Composable
 fun TripTotal(
@@ -69,6 +79,7 @@ fun TripPartial(
         style = MaterialTheme.typography.displayLarge,
         textAlign = TextAlign.End,
         modifier = modifier
+            .testTag(TRIP_PARTIAL)
             .fillMaxSize()
             .wrapContentHeight()
             .clickable { onClick() }
@@ -204,19 +215,19 @@ fun CommandBar(
             onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
             icon = Icons.Default.KeyboardArrowDown,
             contentDescription = "Decrease partial",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).testTag(DECREASE_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
             icon = Icons.Default.Refresh,
             contentDescription = "Reset partial",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).testTag(RESET_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
             icon = Icons.Default.KeyboardArrowUp,
             contentDescription = "Increase partial",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).testTag(INCREASE_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.ResetTrip) },
