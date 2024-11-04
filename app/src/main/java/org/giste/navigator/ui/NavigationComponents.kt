@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -99,6 +100,7 @@ fun Map(
 @Composable
 fun Roadbook(
     roadbookState: NavigationViewModel.RoadbookState,
+    state: LazyListState,
     modifier: Modifier = Modifier,
 ) {
     when (roadbookState) {
@@ -115,10 +117,42 @@ fun Roadbook(
         }
 
         is NavigationViewModel.RoadbookState.Loaded -> {
-            RoadbookViewer(
-                pages = roadbookState.pages.collectAsLazyPagingItems(),
-                modifier = modifier
-            )
+            val pages = roadbookState.pages.collectAsLazyPagingItems()
+
+            when(pages.loadState.refresh) {
+                is LoadState.Error -> {
+                    Text(
+                        text = (pages.loadState.refresh as LoadState.Error).error.message
+                            ?: "Unexpected error",
+                        modifier = modifier
+                            .fillMaxSize()
+                            .wrapContentHeight(),
+                        color = MaterialTheme.colorScheme.onError,
+                        style = MaterialTheme.typography.displaySmall,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                is LoadState.Loading -> {
+                    Text(
+                        text = "Loading...",
+                        modifier = modifier
+                            .fillMaxSize()
+                            .wrapContentHeight(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.displayMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                else -> {
+                    RoadbookViewer(
+                        pages = pages,
+                        state = state,
+                        modifier = modifier,
+                    )
+                }
+            }
         }
     }
 }
@@ -126,47 +160,22 @@ fun Roadbook(
 @Composable
 fun RoadbookViewer(
     pages: LazyPagingItems<PdfPage>,
+    state: LazyListState,
     modifier: Modifier = Modifier,
 ) {
-    when (pages.loadState.refresh) {
-        is LoadState.Error -> {
-            Text(
-                text = (pages.loadState.refresh as LoadState.Error).error.message
-                    ?: "Unexpected error",
-                modifier = modifier
-                    .fillMaxSize()
-                    .wrapContentHeight(),
-                color = MaterialTheme.colorScheme.onError,
-                style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        is LoadState.Loading -> {
-            Text(
-                text = "Loading...",
-                modifier = modifier
-                    .fillMaxSize()
-                    .wrapContentHeight(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.displayMedium,
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        else -> {
-            LazyColumn(modifier = modifier) {
-                items(
-                    count = pages.itemCount,
-                    key = pages.itemKey(),
-                    contentType = pages.itemContentType()
-                ) { index ->
-                    Log.d("PdfViewer", "index: $index")
-                    val pdfPage = pages[index]
-                    pdfPage?.let {
-                        RoadbookPage(it.bitmap)
-                    }
-                }
+    LazyColumn(
+        modifier = modifier,
+        state = state,
+    ) {
+        items(
+            count = pages.itemCount,
+            key = pages.itemKey(),
+            contentType = pages.itemContentType()
+        ) { index ->
+            Log.d("PdfViewer", "index: $index")
+            val pdfPage = pages[index]
+            pdfPage?.let {
+                RoadbookPage(it.bitmap)
             }
         }
     }
