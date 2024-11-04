@@ -40,8 +40,7 @@ const val NAVIGATION_LANDSCAPE = "NAVIGATION_LANDSCAPE"
 fun NavigationLandscapePreview() {
     NavigatorTheme {
         NavigationLandscapeContent(
-            state = NavigationViewModel.TripState(123456, 1234567),
-            roadbookState = NavigationViewModel.RoadbookState.NotLoaded,
+            state = NavigationViewModel.NavigationState(123456, 1234567),
             onEvent = {},
         )
     }
@@ -49,14 +48,12 @@ fun NavigationLandscapePreview() {
 
 @Composable
 fun NavigationLandscapeScreen(
-    tripState: NavigationViewModel.TripState,
-    roadbookState: NavigationViewModel.RoadbookState,
+    navigationState: NavigationViewModel.NavigationState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavigationLandscapeContent(
-        state = tripState,
-        roadbookState = roadbookState,
+        state = navigationState,
         onEvent = onEvent,
         modifier = modifier,
     )
@@ -64,8 +61,7 @@ fun NavigationLandscapeScreen(
 
 @Composable
 fun NavigationLandscapeContent(
-    state: NavigationViewModel.TripState,
-    roadbookState: NavigationViewModel.RoadbookState,
+    state: NavigationViewModel.NavigationState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -155,7 +151,7 @@ fun NavigationLandscapeContent(
             }
             VerticalDivider()
             Roadbook(
-                roadbookState = roadbookState,
+                roadbookState = state.roadbookState,
                 state = pdfState,
                 modifier = Modifier
                     .weight(5f)

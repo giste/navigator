@@ -10,13 +10,10 @@ import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
@@ -31,21 +28,11 @@ class NavigationViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val pdfRepository: PdfRepository,
 ) : ViewModel() {
-    private val _tripState = MutableStateFlow(TripState())
-    val tripState = _tripState.asStateFlow()
+    private val _navigationState = MutableStateFlow(NavigationState())
+    val tripState = _navigationState.asStateFlow()
 
     private var lastLocation by mutableStateOf<Location?>(null)
-
-    private val roadbookUri = MutableStateFlow(Uri.EMPTY)
-    val roadbookState = roadbookUri
-        .map {
-            if (it == Uri.EMPTY) {
-                RoadbookState.NotLoaded
-            } else {
-                RoadbookState.Loaded(pdfRepository.getPdfStream(it))
-            }
-        }
-        .stateIn(viewModelScope, SharingStarted.Lazily, RoadbookState.NotLoaded)
+    private var uri by mutableStateOf(Uri.EMPTY)
 
     init {
         startListenForLocations()
@@ -61,7 +48,7 @@ class NavigationViewModel @Inject constructor(
             .onEach { newLocation ->
                 lastLocation?.let {
                     val distance = it.distanceTo(newLocation).roundToInt()
-                    _tripState.update { currentTripState ->
+                    _navigationState.update { currentTripState ->
                         currentTripState.copy(
                             partial = currentTripState.partial + distance,
                             total = currentTripState.total + distance,
@@ -73,25 +60,25 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun resetPartial() {
-        _tripState.update { currentTripState ->
+        _navigationState.update { currentTripState ->
             currentTripState.copy(partial = 0)
         }
     }
 
     private fun decreasePartial() {
-        _tripState.update { currentTripState ->
+        _navigationState.update { currentTripState ->
             currentTripState.copy(partial = (currentTripState.partial - 10).coerceAtLeast(0))
         }
     }
 
     private fun increasePartial() {
-        _tripState.update { currentTripState ->
+        _navigationState.update { currentTripState ->
             currentTripState.copy(partial = (currentTripState.partial + 10).coerceAtMost(999_990))
         }
     }
 
     private fun resetTrip() {
-        _tripState.update { currentTripState ->
+        _navigationState.update { currentTripState ->
             currentTripState.copy(partial = 0, total = 0)
         }
     }
@@ -100,7 +87,7 @@ class NavigationViewModel @Inject constructor(
         val meters = partial.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..999_990) {
-            _tripState.update { currentTripState ->
+            _navigationState.update { currentTripState ->
                 currentTripState.copy(partial = meters)
             }
         } else {
@@ -114,7 +101,7 @@ class NavigationViewModel @Inject constructor(
         val meters = total.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..9_999_990) {
-            _tripState.update { currentTripState ->
+            _navigationState.update { currentTripState ->
                 currentTripState.copy(total = meters)
             }
         } else {
@@ -125,7 +112,12 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun setRoadbookUri(uri: Uri) {
-        this.roadbookUri.update { uri }
+        this.uri = uri
+        this._navigationState.update { currentState ->
+            currentState.copy(
+                roadbookState = RoadbookState.Loaded(pdfRepository.getPdfStream(uri))
+            )
+        }
     }
 
     sealed class UiEvent {
@@ -170,9 +162,10 @@ class NavigationViewModel @Inject constructor(
         }
     }
 
-    data class TripState(
+    data class NavigationState(
         val partial: Int = 0,
         val total: Int = 0,
+        val roadbookState: RoadbookState = RoadbookState.NotLoaded
     )
 
     sealed class RoadbookState {
@@ -181,4 +174,3 @@ class NavigationViewModel @Inject constructor(
     }
 
 }
-
