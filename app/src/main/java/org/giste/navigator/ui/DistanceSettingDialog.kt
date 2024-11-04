@@ -105,8 +105,8 @@ fun DistanceSettingDialog(
                     textAlign = TextAlign.End,
                 ),
                 visualTransformation = DecimalVisualTransformation(
-                    numberOfIntegerDigits = 4,
-                    numberOfDecimals = 2,
+                    numberOfIntegerDigits = numberOfIntegerDigits,
+                    numberOfDecimals = numberOfDecimals,
                     fixedCursorAtTheEnd = true,
                 ),
                 keyboardOptions = KeyboardOptions(

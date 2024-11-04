@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -38,6 +40,11 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 import org.giste.navigator.model.PdfPage
+
+const val TRIP_PARTIAL = "TRIP_PARTIAL"
+const val INCREASE_PARTIAL = "INCREASE_PARTIAL"
+const val DECREASE_PARTIAL = "DECREASE_PARTIAL"
+const val RESET_PARTIAL = "RESET_PARTIAL"
 
 @Composable
 fun TripTotal(
@@ -69,6 +76,7 @@ fun TripPartial(
         style = MaterialTheme.typography.displayLarge,
         textAlign = TextAlign.End,
         modifier = modifier
+            .testTag(TRIP_PARTIAL)
             .fillMaxSize()
             .wrapContentHeight()
             .clickable { onClick() }
@@ -92,6 +100,7 @@ fun Map(
 @Composable
 fun Roadbook(
     roadbookState: NavigationViewModel.RoadbookState,
+    state: LazyListState,
     modifier: Modifier = Modifier,
 ) {
     when (roadbookState) {
@@ -108,10 +117,42 @@ fun Roadbook(
         }
 
         is NavigationViewModel.RoadbookState.Loaded -> {
-            RoadbookViewer(
-                pages = roadbookState.pages.collectAsLazyPagingItems(),
-                modifier = modifier
-            )
+            val pages = roadbookState.pages.collectAsLazyPagingItems()
+
+            when(pages.loadState.refresh) {
+                is LoadState.Error -> {
+                    Text(
+                        text = (pages.loadState.refresh as LoadState.Error).error.message
+                            ?: "Unexpected error",
+                        modifier = modifier
+                            .fillMaxSize()
+                            .wrapContentHeight(),
+                        color = MaterialTheme.colorScheme.onError,
+                        style = MaterialTheme.typography.displaySmall,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                is LoadState.Loading -> {
+                    Text(
+                        text = "Loading...",
+                        modifier = modifier
+                            .fillMaxSize()
+                            .wrapContentHeight(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.displayMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                else -> {
+                    RoadbookViewer(
+                        pages = pages,
+                        state = state,
+                        modifier = modifier,
+                    )
+                }
+            }
         }
     }
 }
@@ -119,47 +160,22 @@ fun Roadbook(
 @Composable
 fun RoadbookViewer(
     pages: LazyPagingItems<PdfPage>,
+    state: LazyListState,
     modifier: Modifier = Modifier,
 ) {
-    when (pages.loadState.refresh) {
-        is LoadState.Error -> {
-            Text(
-                text = (pages.loadState.refresh as LoadState.Error).error.message
-                    ?: "Unexpected error",
-                modifier = modifier
-                    .fillMaxSize()
-                    .wrapContentHeight(),
-                color = MaterialTheme.colorScheme.onError,
-                style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        is LoadState.Loading -> {
-            Text(
-                text = "Loading...",
-                modifier = modifier
-                    .fillMaxSize()
-                    .wrapContentHeight(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.displayMedium,
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        else -> {
-            LazyColumn(modifier = modifier) {
-                items(
-                    count = pages.itemCount,
-                    key = pages.itemKey(),
-                    contentType = pages.itemContentType()
-                ) { index ->
-                    Log.d("PdfViewer", "index: $index")
-                    val pdfPage = pages[index]
-                    pdfPage?.let {
-                        RoadbookPage(it.bitmap)
-                    }
-                }
+    LazyColumn(
+        modifier = modifier,
+        state = state,
+    ) {
+        items(
+            count = pages.itemCount,
+            key = pages.itemKey(),
+            contentType = pages.itemContentType()
+        ) { index ->
+            Log.d("PdfViewer", "index: $index")
+            val pdfPage = pages[index]
+            pdfPage?.let {
+                RoadbookPage(it.bitmap)
             }
         }
     }
@@ -204,19 +220,19 @@ fun CommandBar(
             onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
             icon = Icons.Default.KeyboardArrowDown,
             contentDescription = "Decrease partial",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).testTag(DECREASE_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
             icon = Icons.Default.Refresh,
             contentDescription = "Reset partial",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).testTag(RESET_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
             icon = Icons.Default.KeyboardArrowUp,
             contentDescription = "Increase partial",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).testTag(INCREASE_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.ResetTrip) },

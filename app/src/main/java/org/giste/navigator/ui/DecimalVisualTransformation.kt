@@ -1,11 +1,14 @@
 package org.giste.navigator.ui
 
 import android.icu.text.DecimalFormatSymbols
+import android.util.Log
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import kotlin.math.max
+
+private const val CLASS_NAME = "DecimalVisualTransformation"
 
 class DecimalVisualTransformation(
     private val numberOfIntegerDigits: Int,
@@ -16,9 +19,11 @@ class DecimalVisualTransformation(
     override fun filter(text: AnnotatedString): TransformedText {
         val thousandsSeparator = symbols.groupingSeparator
         val decimalSeparator = symbols.decimalSeparator
-        val zero = symbols.zeroDigit
+        val zeroDigit = symbols.zeroDigit
+        Log.v(CLASS_NAME, "Thousands: '$thousandsSeparator'; Decimal: '$decimalSeparator'; Zero: '$zeroDigit'")
 
         val inputText = text.text
+        Log.d(CLASS_NAME, "Text: '$inputText'")
 
         val intPart = inputText
             .dropLast(numberOfDecimals)
@@ -27,19 +32,21 @@ class DecimalVisualTransformation(
             .chunked(3)
             .joinToString(thousandsSeparator.toString())
             .reversed()
-            .ifEmpty { zero.toString() }
+            .ifEmpty { zeroDigit.toString() }
 
         val fractionPart = inputText.takeLast(numberOfDecimals).let {
             if (it.length != numberOfDecimals) {
                 List(numberOfDecimals - it.length) {
-                    zero
+                    zeroDigit
                 }.joinToString("") + it
             } else {
                 it
             }
         }
+        Log.v(CLASS_NAME, "Integer: $intPart; Fraction: $fractionPart")
 
         val formattedNumber = intPart + decimalSeparator + fractionPart
+        Log.d(CLASS_NAME, "Formatted: $formattedNumber")
 
         val newText = AnnotatedString(
             text = formattedNumber,
@@ -60,6 +67,7 @@ class DecimalVisualTransformation(
             )
         }
 
+        Log.d(CLASS_NAME, "New text: ${newText.text}")
         return TransformedText(newText, offsetMapping)
     }
 
