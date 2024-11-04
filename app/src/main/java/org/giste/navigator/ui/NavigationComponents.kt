@@ -119,10 +119,10 @@ fun Roadbook(
         is NavigationViewModel.RoadbookState.Loaded -> {
             val pages = roadbookState.pages.collectAsLazyPagingItems()
 
-            when(pages.loadState.refresh) {
+            when(val loadState = pages.loadState.refresh) {
                 is LoadState.Error -> {
                     Text(
-                        text = (pages.loadState.refresh as LoadState.Error).error.message
+                        text = loadState.error.message
                             ?: "Unexpected error",
                         modifier = modifier
                             .fillMaxSize()
