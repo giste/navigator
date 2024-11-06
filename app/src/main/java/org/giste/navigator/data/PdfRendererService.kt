@@ -22,6 +22,7 @@ class PdfRendererService(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : PdfService {
     private val pdfRenderer by lazy {
+        Log.d(CLASS_NAME, "uri: $uri")
         PdfRenderer(context.contentResolver.openFileDescriptor(uri, "r")!!)
     }
 

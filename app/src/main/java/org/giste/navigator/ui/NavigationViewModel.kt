@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
@@ -113,10 +114,13 @@ class NavigationViewModel @Inject constructor(
 
     private fun setRoadbookUri(uri: Uri) {
         this.uri = uri
-        this._navigationState.update { currentState ->
-            currentState.copy(
-                roadbookState = RoadbookState.Loaded(pdfRepository.getPdfStream(uri))
-            )
+
+        viewModelScope.launch {
+            _navigationState.update { currentState ->
+                currentState.copy(
+                    roadbookState = RoadbookState.Loaded(pdfRepository.getPdfStream(uri))
+                )
+            }
         }
     }
 
