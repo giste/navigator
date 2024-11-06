@@ -7,16 +7,16 @@ interface MockLocations {
     fun getLocations(): List<Location>
 }
 
-object EmptyRoute: MockLocations {
+object EmptyRoute : MockLocations {
     override fun getDistance() = 0
 
     override fun getLocations() = listOf<Location>()
 }
 
-object TestRoute: MockLocations {
+object TestRoute : MockLocations {
     override fun getDistance() = 1344
 
-    override fun getLocations()= listOf(
+    override fun getLocations() = listOf(
         Location(latitude = 40.601367, longitude = -3.699775, altitude = 715.000000),
         Location(latitude = 40.601360, longitude = -3.699792, altitude = 715.000000),
         Location(latitude = 40.601299, longitude = -3.700251, altitude = 716.000000),

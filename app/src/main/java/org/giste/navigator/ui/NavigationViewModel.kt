@@ -47,11 +47,11 @@ class NavigationViewModel @Inject constructor(
         if (lastState.partial != it.partial) newState = newState.copy(partial = it.partial)
         if (lastState.total != it.total) newState = newState.copy(total = it.total)
         if (lastState.roadbookUri != it.roadbookUri) {
-            newState= newState.copy(
+            newState = newState.copy(
                 roadbookState = if (it.roadbookUri == Uri.EMPTY) {
                     RoadbookState.NotLoaded
                 } else {
-                    RoadbookState.Loaded(pdfRepository.getPdfStream(it.roadbookUri))
+                    RoadbookState.Loaded(pdfRepository.getRoadbookPages())
                 }
             )
         }
@@ -138,7 +138,10 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun setRoadbookUri(uri: Uri) {
-        viewModelScope.launch { stateRepository.setRoadbookUri(uri) }
+        viewModelScope.launch {
+            pdfRepository.loadRoadbook(uri)
+            stateRepository.setRoadbookUri(uri)
+        }
     }
 
     sealed class UiEvent {

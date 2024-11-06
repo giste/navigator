@@ -22,15 +22,15 @@ class DataStoreStateRepository @Inject constructor(
     }
 
     override fun getState(): Flow<State> {
-         return dataStore.data.map {
-             State(
-                 partial = it[TRIP_PARTIAL] ?: 0,
-                 total = it[TRIP_TOTAL] ?: 0,
-                 roadbookUri = it[ROADBOOK_URI]?.let { uri ->
-                     Uri.parse(uri)
-                 } ?: Uri.EMPTY
-             )
-         }
+        return dataStore.data.map {
+            State(
+                partial = it[TRIP_PARTIAL] ?: 0,
+                total = it[TRIP_TOTAL] ?: 0,
+                roadbookUri = it[ROADBOOK_URI]?.let { uri ->
+                    Uri.parse(uri)
+                } ?: Uri.EMPTY
+            )
+        }
     }
 
     override fun getPartial(): Flow<Int> {

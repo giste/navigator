@@ -119,7 +119,7 @@ fun Roadbook(
         is NavigationViewModel.RoadbookState.Loaded -> {
             val pages = roadbookState.pages.collectAsLazyPagingItems()
 
-            when(val loadState = pages.loadState.refresh) {
+            when (val loadState = pages.loadState.refresh) {
                 is LoadState.Error -> {
                     Text(
                         text = loadState.error.message
@@ -220,19 +220,25 @@ fun CommandBar(
             onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
             icon = Icons.Default.KeyboardArrowDown,
             contentDescription = "Decrease partial",
-            modifier = Modifier.weight(1f).testTag(DECREASE_PARTIAL)
+            modifier = Modifier
+                .weight(1f)
+                .testTag(DECREASE_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
             icon = Icons.Default.Refresh,
             contentDescription = "Reset partial",
-            modifier = Modifier.weight(1f).testTag(RESET_PARTIAL)
+            modifier = Modifier
+                .weight(1f)
+                .testTag(RESET_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
             icon = Icons.Default.KeyboardArrowUp,
             contentDescription = "Increase partial",
-            modifier = Modifier.weight(1f).testTag(INCREASE_PARTIAL)
+            modifier = Modifier
+                .weight(1f)
+                .testTag(INCREASE_PARTIAL)
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.ResetTrip) },

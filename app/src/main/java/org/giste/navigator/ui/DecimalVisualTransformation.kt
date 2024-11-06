@@ -20,7 +20,10 @@ class DecimalVisualTransformation(
         val thousandsSeparator = symbols.groupingSeparator
         val decimalSeparator = symbols.decimalSeparator
         val zeroDigit = symbols.zeroDigit
-        Log.v(CLASS_NAME, "Thousands: '$thousandsSeparator'; Decimal: '$decimalSeparator'; Zero: '$zeroDigit'")
+        Log.v(
+            CLASS_NAME,
+            "Thousands: '$thousandsSeparator'; Decimal: '$decimalSeparator'; Zero: '$zeroDigit'"
+        )
 
         val inputText = text.text
         Log.d(CLASS_NAME, "Text: '$inputText'")
