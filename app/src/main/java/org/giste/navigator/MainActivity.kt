@@ -53,10 +53,10 @@ fun NavigationPreview() {
 }
 
 @Composable
-fun NavigationScreen(vm: NavigationViewModel = viewModel()) {
+fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
     NavigationContent(
-        state = vm.tripState.collectAsStateWithLifecycle().value,
-        onEvent = vm::onEvent,
+        state = viewModel.state.collectAsStateWithLifecycle().value,
+        onEvent = viewModel::onEvent,
     )
 }
 
