@@ -5,5 +5,6 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 
 interface PdfRepository {
-    suspend fun getPdfStream(uri: Uri): Flow<PagingData<PdfPage>>
+    suspend fun getRoadbookPages(): Flow<PagingData<PdfPage>>
+    suspend fun loadRoadbook(uri: Uri)
 }

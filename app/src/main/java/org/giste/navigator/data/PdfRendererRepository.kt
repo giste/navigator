@@ -7,8 +7,10 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.PdfRepository
@@ -22,12 +24,14 @@ private const val CLASS_NAME = "PdfRendererRepository"
 
 class PdfRendererRepository @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : PdfRepository {
+    override suspend fun getRoadbookPages(): Flow<PagingData<PdfPage>> {
+        val internalUri = getInternalUri()
 
-    override suspend fun getPdfStream(uri: Uri): Flow<PagingData<PdfPage>> {
-        Log.d(CLASS_NAME, "Uri: $uri")
+        Log.d(CLASS_NAME, "InternalUri: $internalUri")
 
-        val internalUri = openRoadbook(uri)
+        if (internalUri == Uri.EMPTY) return flow {}
 
         return Pager(
             PagingConfig(
@@ -44,13 +48,10 @@ class PdfRendererRepository @Inject constructor(
         }.flow
     }
 
-    private suspend fun openRoadbook(uri: Uri): Uri {
-        val internalDir = context.filesDir
-        val roadbookFile = File(internalDir, ROADBOOK_FILE)
+    override suspend fun loadRoadbook(uri: Uri) {
+        val roadbookFile = File(context.filesDir, ROADBOOK_FILE)
 
-        Log.d(CLASS_NAME, "Internal file: ${roadbookFile.canonicalFile}")
-
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             if (roadbookFile.exists()) roadbookFile.delete()
             roadbookFile.createNewFile()
 
@@ -63,7 +64,17 @@ class PdfRendererRepository @Inject constructor(
             inputStream.close()
             outputStream.close()
         }
-
-        return Uri.fromFile(roadbookFile)
+        Log.d(CLASS_NAME, "Loaded roadbook: ${roadbookFile.canonicalFile}")
     }
+
+    private fun getInternalUri(): Uri {
+        val file = File(context.filesDir, ROADBOOK_FILE)
+
+        return if (file.exists()) {
+            Uri.fromFile(file)
+        } else {
+            Uri.EMPTY
+        }
+    }
+
 }

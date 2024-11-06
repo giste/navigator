@@ -7,6 +7,7 @@ androidxJunitVersion = "1.2.1"
 coilVersion = "3.0.0-rc02"
 composeBomVersion = "2024.10.01"
 coreKtxVersion = "1.15.0"
+datastoreVersion = "1.1.1"
 espressoCoreVersion = "3.6.1"
 hiltNavigationComposeVersion = "1.2.0"
 hiltVersion = "2.52"
@@ -25,6 +26,7 @@ android-test-extensions = { group = "de.mannodermaus.junit5", name = "android-te
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityComposeVersion" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBomVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastoreVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCoreVersion" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion"}
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxJunitVersion" }
