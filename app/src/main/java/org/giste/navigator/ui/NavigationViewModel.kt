@@ -1,9 +1,6 @@
 package org.giste.navigator.ui
 
 import android.net.Uri
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -33,12 +30,12 @@ class NavigationViewModel @Inject constructor(
     private val roadbookRepository: RoadbookRepository,
     private val stateRepository: StateRepository,
 ) : ViewModel() {
-    private var lastLocation by mutableStateOf<Location?>(null)
+    private var lastLocation: Location? = null
     private var lastState = State()
     private var lastNavigationState = NavigationState()
 
     val navigationState: StateFlow<NavigationState> = stateRepository.getState().map {
-        var newState = lastNavigationState.copy()
+        var newState = lastNavigationState
         if (lastState.partial != it.partial) newState = newState.copy(partial = it.partial)
         if (lastState.total != it.total) newState = newState.copy(total = it.total)
         if (lastState.roadbookUri != it.roadbookUri) {
