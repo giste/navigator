@@ -39,7 +39,7 @@ const val NAVIGATION_LANDSCAPE = "NAVIGATION_LANDSCAPE"
 @Composable
 fun NavigationLandscapePreview() {
     NavigatorTheme {
-        NavigationLandscapeContent(
+        NavigationLandscapeScreen(
             state = NavigationViewModel.NavigationState(123456, 1234567),
             onEvent = {},
         )
@@ -48,19 +48,6 @@ fun NavigationLandscapePreview() {
 
 @Composable
 fun NavigationLandscapeScreen(
-    navigationState: NavigationViewModel.NavigationState,
-    onEvent: (NavigationViewModel.UiEvent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    NavigationLandscapeContent(
-        state = navigationState,
-        onEvent = onEvent,
-        modifier = modifier,
-    )
-}
-
-@Composable
-fun NavigationLandscapeContent(
     state: NavigationViewModel.NavigationState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
     modifier: Modifier = Modifier,

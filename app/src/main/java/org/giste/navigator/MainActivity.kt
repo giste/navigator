@@ -7,20 +7,9 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.AndroidEntryPoint
-import org.giste.navigator.ui.ManagePermissions
-import org.giste.navigator.ui.NavigationLandscapeScreen
-import org.giste.navigator.ui.NavigationViewModel
+import org.giste.navigator.ui.NavigationScreen
 import org.giste.navigator.ui.theme.NavigatorTheme
 
 @AndroidEntryPoint
@@ -37,47 +26,5 @@ class MainActivity : ComponentActivity() {
             }
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-}
-
-@Preview(
-    showBackground = true,
-    device = "spec:width=1200px,height=1920px,dpi=360, isRound=false, orientation=landscape"
-)
-@Composable
-fun NavigationPreview() {
-    NavigatorTheme {
-        NavigationContent(
-            state = NavigationViewModel.NavigationState(),
-            onEvent = {},
-        )
-    }
-}
-
-@Composable
-fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
-    NavigationContent(
-        state = viewModel.navigationState.collectAsStateWithLifecycle().value,
-        onEvent = viewModel::onEvent,
-    )
-}
-
-@Composable
-fun NavigationContent(
-    state: NavigationViewModel.NavigationState,
-    onEvent: (NavigationViewModel.UiEvent) -> Unit,
-) {
-    ManagePermissions()
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-    ) { innerPadding ->
-        NavigationLandscapeScreen(
-            navigationState = state,
-            onEvent = onEvent,
-            modifier = Modifier
-                .padding(innerPadding)
-                // Consume this insets so that it's not applied again when using safeDrawing in the hierarchy below
-                .consumeWindowInsets(innerPadding)
-        )
     }
 }
