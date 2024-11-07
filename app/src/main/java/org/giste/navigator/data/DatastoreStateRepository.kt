@@ -1,6 +1,5 @@
 package org.giste.navigator.data
 
-import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -26,9 +25,7 @@ class StateDataStoreRepository @Inject constructor(
             State(
                 partial = it[TRIP_PARTIAL] ?: 0,
                 total = it[TRIP_TOTAL] ?: 0,
-                roadbookUri = it[ROADBOOK_URI]?.let { uri ->
-                    Uri.parse(uri)
-                } ?: Uri.EMPTY
+                roadbookUri = it[ROADBOOK_URI] ?: ""
             )
         }
     }
@@ -41,10 +38,8 @@ class StateDataStoreRepository @Inject constructor(
         return dataStore.data.map { it[TRIP_TOTAL] ?: 0 }
     }
 
-    override fun getRoadbookUri(): Flow<Uri> {
-        return dataStore.data.map {
-            it[ROADBOOK_URI]?.let { uri -> Uri.parse(uri) } ?: Uri.EMPTY
-        }
+    override fun getRoadbookUri(): Flow<String> {
+        return dataStore.data.map { it[ROADBOOK_URI] ?: "" }
     }
 
     override suspend fun setPartial(partial: Int) {
@@ -55,8 +50,8 @@ class StateDataStoreRepository @Inject constructor(
         dataStore.edit { it[TRIP_TOTAL] = total }
     }
 
-    override suspend fun setRoadbookUri(roadbookUri: Uri) {
-        dataStore.edit { it[ROADBOOK_URI] = roadbookUri.toString() }
+    override suspend fun setRoadbookUri(roadbookUri: String) {
+        dataStore.edit { it[ROADBOOK_URI] = roadbookUri }
     }
 
 }

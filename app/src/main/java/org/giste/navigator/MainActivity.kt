@@ -55,7 +55,7 @@ fun NavigationPreview() {
 @Composable
 fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
     NavigationContent(
-        state = viewModel.state.collectAsStateWithLifecycle().value,
+        state = viewModel.navigationState.collectAsStateWithLifecycle().value,
         onEvent = viewModel::onEvent,
     )
 }

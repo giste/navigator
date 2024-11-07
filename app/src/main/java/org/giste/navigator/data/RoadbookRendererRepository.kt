@@ -48,14 +48,15 @@ class RoadbookRendererRepository @Inject constructor(
         }.flow
     }
 
-    override suspend fun load(roadbookUri: Uri) {
+    override suspend fun load(roadbookUri: String) {
+        val uri = Uri.parse(roadbookUri)
         val roadbookFile = File(context.filesDir, ROADBOOK_FILE)
 
         withContext(dispatcher) {
             if (roadbookFile.exists()) roadbookFile.delete()
             roadbookFile.createNewFile()
 
-            val inputStream: InputStream = context.contentResolver.openInputStream(roadbookUri)
+            val inputStream: InputStream = context.contentResolver.openInputStream(uri)
                 ?: throw IllegalArgumentException("Invalid URI: $roadbookUri")
             val outputStream = FileOutputStream(roadbookFile)
 

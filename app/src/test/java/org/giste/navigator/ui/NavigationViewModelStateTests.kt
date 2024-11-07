@@ -50,14 +50,14 @@ class NavigationViewModelStateTests {
         fun `increase() should add 10 meters`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
-            assertEquals(10, viewModel.tripState.first().partial)
+            assertEquals(10, viewModel.navigationState.first().partial)
         }
 
         @Test
         fun `decrease() should not change partial`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
 
-            assertEquals(0, viewModel.tripState.first().partial)
+            assertEquals(0, viewModel.navigationState.first().partial)
         }
     }
 
@@ -73,14 +73,14 @@ class NavigationViewModelStateTests {
         fun `increase() should not change partial`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
 
-            assertEquals(999990, viewModel.tripState.first().partial)
+            assertEquals(999990, viewModel.navigationState.first().partial)
         }
 
         @Test
         fun `decrease() should subtract 10 meters`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
 
-            assertEquals(999980, viewModel.tripState.first().partial)
+            assertEquals(999980, viewModel.navigationState.first().partial)
         }
     }
 
@@ -97,15 +97,15 @@ class NavigationViewModelStateTests {
         fun `resetPartial() should set partial to 0`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.ResetPartial)
 
-            assertEquals(0, viewModel.tripState.first().partial)
+            assertEquals(0, viewModel.navigationState.first().partial)
         }
 
         @Test
         fun `resetAll() should set partial and total to 0`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.ResetTrip)
 
-            assertEquals(0, viewModel.tripState.first().partial)
-            assertEquals(0, viewModel.tripState.first().total)
+            assertEquals(0, viewModel.navigationState.first().partial)
+            assertEquals(0, viewModel.navigationState.first().total)
         }
     }
 
@@ -116,7 +116,7 @@ class NavigationViewModelStateTests {
         fun `when it's in 0-999 should update partial`() = runTest {
             viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("123,45"))
 
-            assertEquals(123450, viewModel.tripState.first().partial)
+            assertEquals(123450, viewModel.navigationState.first().partial)
         }
 
         @Test
@@ -135,7 +135,7 @@ class NavigationViewModelStateTests {
         } returns TestRoute.getLocations().asFlow()
         val viewModel = NavigationViewModel(locRepository, roadbookRepository, stateRepository)
 
-        assertEquals(TestRoute.getDistance(), viewModel.tripState.first().partial)
-        assertEquals(TestRoute.getDistance(), viewModel.tripState.first().total)
+        assertEquals(TestRoute.getDistance(), viewModel.navigationState.first().partial)
+        assertEquals(TestRoute.getDistance(), viewModel.navigationState.first().total)
     }
 }

@@ -9,10 +9,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -35,20 +33,17 @@ class NavigationViewModel @Inject constructor(
     private val roadbookRepository: RoadbookRepository,
     private val stateRepository: StateRepository,
 ) : ViewModel() {
-    private val _navigationState = MutableStateFlow(NavigationState())
-    val tripState = _navigationState.asStateFlow()
-
     private var lastLocation by mutableStateOf<Location?>(null)
     private var lastState = State()
     private var lastNavigationState = NavigationState()
 
-    val state: StateFlow<NavigationState> = stateRepository.getState().map {
+    val navigationState: StateFlow<NavigationState> = stateRepository.getState().map {
         var newState = lastNavigationState.copy()
         if (lastState.partial != it.partial) newState = newState.copy(partial = it.partial)
         if (lastState.total != it.total) newState = newState.copy(total = it.total)
         if (lastState.roadbookUri != it.roadbookUri) {
             newState = newState.copy(
-                roadbookState = if (it.roadbookUri == Uri.EMPTY) {
+                roadbookState = if (it.roadbookUri == "") {
                     RoadbookState.NotLoaded
                 } else {
                     RoadbookState.Loaded(roadbookRepository.getPages())
@@ -79,8 +74,8 @@ class NavigationViewModel @Inject constructor(
                 lastLocation?.let {
                     val distance = it.distanceTo(newLocation).roundToInt()
                     with(stateRepository) {
-                        setPartial(state.value.partial + distance)
-                        setTotal(state.value.total + distance)
+                        setPartial(navigationState.value.partial + distance)
+                        setTotal(navigationState.value.total + distance)
                     }
                 }
 
@@ -94,13 +89,13 @@ class NavigationViewModel @Inject constructor(
 
     private fun decreasePartial() {
         viewModelScope.launch {
-            stateRepository.setPartial((state.value.partial - 10).coerceAtLeast(0))
+            stateRepository.setPartial((navigationState.value.partial - 10).coerceAtLeast(0))
         }
     }
 
     private fun increasePartial() {
         viewModelScope.launch {
-            stateRepository.setPartial((state.value.partial + 10).coerceAtMost(999_990))
+            stateRepository.setPartial((navigationState.value.partial + 10).coerceAtMost(999_990))
         }
     }
 
@@ -138,8 +133,8 @@ class NavigationViewModel @Inject constructor(
 
     private fun setRoadbookUri(uri: Uri) {
         viewModelScope.launch {
-            roadbookRepository.load(uri)
-            stateRepository.setRoadbookUri(uri)
+            roadbookRepository.load(uri.toString())
+            stateRepository.setRoadbookUri(uri.toString())
         }
     }
 
