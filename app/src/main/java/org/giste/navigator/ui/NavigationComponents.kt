@@ -45,6 +45,7 @@ const val TRIP_PARTIAL = "TRIP_PARTIAL"
 const val INCREASE_PARTIAL = "INCREASE_PARTIAL"
 const val DECREASE_PARTIAL = "DECREASE_PARTIAL"
 const val RESET_PARTIAL = "RESET_PARTIAL"
+const val RESET_TRIP = "RESET_TRIP"
 
 @Composable
 fun TripTotal(
@@ -243,8 +244,10 @@ fun CommandBar(
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.ResetTrip) },
             icon = Icons.Default.Clear,
-            contentDescription = "Reset All",
-            modifier = Modifier.weight(1f)
+            contentDescription = "Reset Trip",
+            modifier = Modifier
+                .weight(1f)
+                .testTag(RESET_TRIP)
         )
         CommandBarButton(
             onClick = { selectRoadbookLauncher.launch("application/pdf") },

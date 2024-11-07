@@ -1,35 +1,23 @@
 package org.giste.navigator.ui
 
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import org.giste.navigator.R
 import org.giste.navigator.ui.theme.NavigatorTheme
-
-const val NAVIGATION_LANDSCAPE = "NAVIGATION_LANDSCAPE"
 
 @Preview(
     name = "Tab Active 3",
@@ -42,6 +30,7 @@ fun NavigationLandscapePreview() {
         NavigationLandscapeScreen(
             state = NavigationViewModel.NavigationState(123456, 1234567),
             onEvent = {},
+            pdfState = LazyListState()
         )
     }
 }
@@ -50,59 +39,16 @@ fun NavigationLandscapePreview() {
 fun NavigationLandscapeScreen(
     state: NavigationViewModel.NavigationState,
     onEvent: (NavigationViewModel.UiEvent) -> Unit,
+    pdfState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
     val padding = 4.dp
     val showPartialSettingDialog = remember { mutableStateOf(false) }
     val showTotalSettingDialog = remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
-    val pdfState = rememberLazyListState()
-    val numberOfPixels = 317.0f
-
     Column(
         modifier = modifier
-            .testTag(NAVIGATION_LANDSCAPE)
             .fillMaxSize()
-            .focusable()
-            .onKeyEvent {
-                if (it.type == KeyEventType.KeyUp) {
-                    when (it.key) {
-                        Key.DirectionRight -> {
-                            onEvent(NavigationViewModel.UiEvent.IncreasePartial)
-                            return@onKeyEvent true
-                        }
-
-                        Key.DirectionLeft -> {
-                            onEvent(NavigationViewModel.UiEvent.DecreasePartial)
-                            return@onKeyEvent true
-                        }
-
-                        Key.F6 -> {
-                            onEvent(NavigationViewModel.UiEvent.ResetPartial)
-                            return@onKeyEvent true
-                        }
-
-                        Key.DirectionUp -> {
-                            coroutineScope.launch {
-                                pdfState.animateScrollBy(numberOfPixels)
-                            }
-                            return@onKeyEvent true
-                        }
-
-                        Key.DirectionDown -> {
-                            coroutineScope.launch {
-                                pdfState.animateScrollBy(-numberOfPixels)
-                            }
-                            return@onKeyEvent true
-                        }
-
-                        else -> return@onKeyEvent false
-                    }
-                } else {
-                    false
-                }
-            }
     ) {
         Row(
             modifier = Modifier
