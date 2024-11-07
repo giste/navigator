@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -218,7 +218,7 @@ fun CommandBar(
     ) {
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
-            icon = Icons.Default.KeyboardArrowDown,
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = "Decrease partial",
             modifier = Modifier
                 .weight(1f)
@@ -234,7 +234,7 @@ fun CommandBar(
         )
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
-            icon = Icons.Default.KeyboardArrowUp,
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "Increase partial",
             modifier = Modifier
                 .weight(1f)

@@ -13,7 +13,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.giste.navigator.model.LocationRepository
-import org.giste.navigator.model.PdfRepository
+import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.StateRepository
 import javax.inject.Singleton
 
@@ -27,12 +27,12 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun providePdfRepository(@ApplicationContext appContext: Context): PdfRepository =
-        PdfRendererRepository(appContext)
+    fun provideRoadbookRepository(@ApplicationContext appContext: Context): RoadbookRepository =
+        RoadbookRendererRepository(appContext)
 
     @Singleton
     @Provides
-    fun provideStateDatastore(@ApplicationContext context: Context): DataStore<Preferences> {
+    fun provideStateDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler(
                 produceNewData = { emptyPreferences() }
@@ -43,7 +43,7 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideTripRepository(stateDataStore: DataStore<Preferences>): StateRepository {
-        return DataStoreStateRepository(stateDataStore)
+    fun provideStateRepository(stateDataStore: DataStore<Preferences>): StateRepository {
+        return StateDataStoreRepository(stateDataStore)
     }
 }

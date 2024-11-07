@@ -10,10 +10,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.withContext
 import org.giste.navigator.model.PdfPage
-import org.giste.navigator.model.PdfRepository
+import org.giste.navigator.model.RoadbookRepository
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -22,16 +22,16 @@ import javax.inject.Inject
 private const val ROADBOOK_FILE = "roadbook.pdf"
 private const val CLASS_NAME = "PdfRendererRepository"
 
-class PdfRendererRepository @Inject constructor(
+class RoadbookRendererRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-) : PdfRepository {
-    override suspend fun getRoadbookPages(): Flow<PagingData<PdfPage>> {
+) : RoadbookRepository {
+    override suspend fun getPages(): Flow<PagingData<PdfPage>> {
         val internalUri = getInternalUri()
 
         Log.d(CLASS_NAME, "InternalUri: $internalUri")
 
-        if (internalUri == Uri.EMPTY) return flow {}
+        if (internalUri == Uri.EMPTY) return emptyFlow()
 
         return Pager(
             PagingConfig(
@@ -48,15 +48,15 @@ class PdfRendererRepository @Inject constructor(
         }.flow
     }
 
-    override suspend fun loadRoadbook(uri: Uri) {
+    override suspend fun load(roadbookUri: Uri) {
         val roadbookFile = File(context.filesDir, ROADBOOK_FILE)
 
         withContext(dispatcher) {
             if (roadbookFile.exists()) roadbookFile.delete()
             roadbookFile.createNewFile()
 
-            val inputStream: InputStream = context.contentResolver.openInputStream(uri)
-                ?: throw IllegalArgumentException("Invalid URI: $uri")
+            val inputStream: InputStream = context.contentResolver.openInputStream(roadbookUri)
+                ?: throw IllegalArgumentException("Invalid URI: $roadbookUri")
             val outputStream = FileOutputStream(roadbookFile)
 
             inputStream.copyTo(outputStream)

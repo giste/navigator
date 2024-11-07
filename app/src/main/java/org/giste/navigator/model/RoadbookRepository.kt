@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 
-interface PdfRepository {
-    suspend fun getRoadbookPages(): Flow<PagingData<PdfPage>>
-    suspend fun loadRoadbook(uri: Uri)
+interface RoadbookRepository {
+    suspend fun getPages(): Flow<PagingData<PdfPage>>
+    suspend fun load(roadbookUri: Uri)
 }

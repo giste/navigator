@@ -12,7 +12,7 @@ import org.giste.navigator.model.State
 import org.giste.navigator.model.StateRepository
 import javax.inject.Inject
 
-class DataStoreStateRepository @Inject constructor(
+class StateDataStoreRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) : StateRepository {
     companion object {

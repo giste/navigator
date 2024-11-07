@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.giste.navigator.model.LocationRepository
-import org.giste.navigator.model.PdfRepository
+import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.StateRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class NavigationViewModelStateTests {
 
     private val locationRepository: LocationRepository = mockk()
-    private val pdfRepository: PdfRepository = mockk()
+    private val roadbookRepository: RoadbookRepository = mockk()
     private val stateRepository: StateRepository = mockk()
     private lateinit var viewModel: NavigationViewModel
 
@@ -35,7 +35,7 @@ class NavigationViewModelStateTests {
             locationRepository.listenToLocation(any(), any())
         } returns EmptyRoute.getLocations().asFlow()
 
-        viewModel = NavigationViewModel(locationRepository, pdfRepository, stateRepository)
+        viewModel = NavigationViewModel(locationRepository, roadbookRepository, stateRepository)
     }
 
     @AfterEach
@@ -133,7 +133,7 @@ class NavigationViewModelStateTests {
         coEvery {
             locRepository.listenToLocation(any(), any())
         } returns TestRoute.getLocations().asFlow()
-        val viewModel = NavigationViewModel(locRepository, pdfRepository, stateRepository)
+        val viewModel = NavigationViewModel(locRepository, roadbookRepository, stateRepository)
 
         assertEquals(TestRoute.getDistance(), viewModel.tripState.first().partial)
         assertEquals(TestRoute.getDistance(), viewModel.tripState.first().total)

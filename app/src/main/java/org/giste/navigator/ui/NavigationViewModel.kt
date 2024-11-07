@@ -23,7 +23,7 @@ import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfPage
-import org.giste.navigator.model.PdfRepository
+import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.State
 import org.giste.navigator.model.StateRepository
 import javax.inject.Inject
@@ -32,7 +32,7 @@ import kotlin.math.roundToInt
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
-    private val pdfRepository: PdfRepository,
+    private val roadbookRepository: RoadbookRepository,
     private val stateRepository: StateRepository,
 ) : ViewModel() {
     private val _navigationState = MutableStateFlow(NavigationState())
@@ -51,7 +51,7 @@ class NavigationViewModel @Inject constructor(
                 roadbookState = if (it.roadbookUri == Uri.EMPTY) {
                     RoadbookState.NotLoaded
                 } else {
-                    RoadbookState.Loaded(pdfRepository.getRoadbookPages())
+                    RoadbookState.Loaded(roadbookRepository.getPages())
                 }
             )
         }
@@ -71,9 +71,8 @@ class NavigationViewModel @Inject constructor(
 
     private fun startListenForLocations() {
         locationRepository.listenToLocation(1_000L, 10f)
-            .catch {
+            .catch { e ->
                 // Location permissions exceptions should be managed by permissions screen
-                    e ->
                 if (e !is LocationPermissionException) throw e
             }
             .onEach { newLocation ->
@@ -139,7 +138,7 @@ class NavigationViewModel @Inject constructor(
 
     private fun setRoadbookUri(uri: Uri) {
         viewModelScope.launch {
-            pdfRepository.loadRoadbook(uri)
+            roadbookRepository.load(uri)
             stateRepository.setRoadbookUri(uri)
         }
     }
