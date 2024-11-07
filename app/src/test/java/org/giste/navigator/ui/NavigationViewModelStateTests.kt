@@ -145,11 +145,9 @@ class NavigationViewModelStateTests {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `when locations are collected distances should be calculated`() = runTest {
-        //val locRepository: LocationRepository = mockk()
         coEvery {
             locationRepository.listenToLocation(any(), any())
         } returns TestRoute.getLocations().asFlow()
-        //val viewModel = NavigationViewModel(locRepository, roadbookRepository, tripRepository)
         viewModel.initialize()
 
         advanceUntilIdle()

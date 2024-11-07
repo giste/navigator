@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,6 +28,9 @@ fun NavigationPreview() {
 
 @Composable
 fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
+    LaunchedEffect(Unit) {
+        viewModel.initialize()
+    }
     NavigationContent(
         state = viewModel.navigationState.collectAsStateWithLifecycle().value,
         onEvent = viewModel::onEvent,
