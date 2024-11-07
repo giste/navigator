@@ -9,8 +9,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -20,7 +21,7 @@ import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.State
-import org.giste.navigator.model.StateRepository
+import org.giste.navigator.model.TripRepository
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -28,34 +29,44 @@ import kotlin.math.roundToInt
 class NavigationViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val roadbookRepository: RoadbookRepository,
-    private val stateRepository: StateRepository,
+    private val tripRepository: TripRepository,
 ) : ViewModel() {
     private var lastLocation: Location? = null
     private var lastState = State()
     private var lastNavigationState = NavigationState()
 
-    val navigationState: StateFlow<NavigationState> = stateRepository.getState().map {
+    val navigationState: StateFlow<NavigationState> = combine(
+        tripRepository.getPartial(),
+        tripRepository.getTotal(),
+        roadbookRepository.getRoadbookUri()
+    ) { partial, total, roadbookUri ->
         var newState = lastNavigationState
-        if (lastState.partial != it.partial) newState = newState.copy(partial = it.partial)
-        if (lastState.total != it.total) newState = newState.copy(total = it.total)
-        if (lastState.roadbookUri != it.roadbookUri) {
+        if (lastState.partial != partial) newState = newState.copy(partial = partial)
+        if (lastState.total != total) newState = newState.copy(total = total)
+        if (lastState.roadbookUri != roadbookUri) {
             newState = newState.copy(
-                roadbookState = if (it.roadbookUri == "") {
+                roadbookState = if (roadbookUri == "") {
                     RoadbookState.NotLoaded
                 } else {
                     RoadbookState.Loaded(roadbookRepository.getPages())
                 }
             )
         }
-        lastState = it
+
+        lastState = State(partial, total, roadbookUri)
         lastNavigationState = newState
 
-        return@map newState
+        return@combine newState
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),
         initialValue = NavigationState()
     )
+
+    val s = flow {
+        emit(NavigationState())
+        startListenForLocations()
+    }
 
     init {
         startListenForLocations()
@@ -70,10 +81,7 @@ class NavigationViewModel @Inject constructor(
             .onEach { newLocation ->
                 lastLocation?.let {
                     val distance = it.distanceTo(newLocation).roundToInt()
-                    with(stateRepository) {
-                        setPartial(navigationState.value.partial + distance)
-                        setTotal(navigationState.value.total + distance)
-                    }
+                    tripRepository.addDistance(distance)
                 }
 
                 lastLocation = newLocation
@@ -81,34 +89,26 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun resetPartial() {
-        viewModelScope.launch { stateRepository.setPartial(0) }
+        viewModelScope.launch { tripRepository.resetPartial() }
     }
 
     private fun decreasePartial() {
-        viewModelScope.launch {
-            stateRepository.setPartial((navigationState.value.partial - 10).coerceAtLeast(0))
-        }
+        viewModelScope.launch { tripRepository.decrementPartial() }
     }
 
     private fun increasePartial() {
-        viewModelScope.launch {
-            stateRepository.setPartial((navigationState.value.partial + 10).coerceAtMost(999_990))
-        }
+        viewModelScope.launch { tripRepository.incrementPartial() }
     }
 
     private fun resetTrip() {
-        viewModelScope.launch {
-            stateRepository.setPartial(0)
-            stateRepository.setTotal(0)
-        }
-
+        viewModelScope.launch { tripRepository.resetTrip() }
     }
 
     private fun setPartial(partial: String) {
         val meters = partial.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..999_990) {
-            viewModelScope.launch { stateRepository.setPartial(meters) }
+            viewModelScope.launch { tripRepository.setPartial(meters) }
         } else {
             throw IllegalArgumentException(
                 "Partial must represent a number between 0 and ${"%,.2f".format(999.99f)}"
@@ -120,7 +120,7 @@ class NavigationViewModel @Inject constructor(
         val meters = total.filter { it.isDigit() }.toInt() * 10
 
         if (meters in 0..9_999_990) {
-            viewModelScope.launch { stateRepository.setTotal(meters) }
+            viewModelScope.launch { tripRepository.setTotal(meters) }
         } else {
             throw IllegalArgumentException(
                 "Total must represent a number between 0 and ${"%,.2f".format(9999.99f)}"
@@ -129,10 +129,7 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun setRoadbookUri(uri: Uri) {
-        viewModelScope.launch {
-            roadbookRepository.load(uri.toString())
-            stateRepository.setRoadbookUri(uri.toString())
-        }
+        viewModelScope.launch { roadbookRepository.load(uri.toString()) }
     }
 
     sealed class UiEvent {
