@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -34,6 +33,7 @@ class NavigationViewModel @Inject constructor(
     private var lastLocation: Location? = null
     private var lastState = State()
     private var lastNavigationState = NavigationState()
+    private var initialized = false
 
     val navigationState: StateFlow<NavigationState> = combine(
         tripRepository.getPartial(),
@@ -63,12 +63,10 @@ class NavigationViewModel @Inject constructor(
         initialValue = NavigationState()
     )
 
-    val s = flow {
-        emit(NavigationState())
-        startListenForLocations()
-    }
+    fun initialize() {
+        if (initialized) return
 
-    init {
+        initialized = true
         startListenForLocations()
     }
 
