@@ -14,7 +14,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.RoadbookRepository
-import org.giste.navigator.model.StateRepository
+import org.giste.navigator.model.TripRepository
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -27,8 +27,11 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideRoadbookRepository(@ApplicationContext appContext: Context): RoadbookRepository =
-        RoadbookRendererRepository(appContext)
+    fun provideRoadbookRepository(
+        @ApplicationContext appContext: Context,
+        stateDataStore: DataStore<Preferences>,
+    ): RoadbookRepository =
+        RoadbookRendererRepository(appContext, stateDataStore)
 
     @Singleton
     @Provides
@@ -43,7 +46,7 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideStateRepository(stateDataStore: DataStore<Preferences>): StateRepository {
-        return StateDataStoreRepository(stateDataStore)
+    fun provideTripRepository(stateDataStore: DataStore<Preferences>): TripRepository {
+        return TripDataStoreRepository(stateDataStore)
     }
 }

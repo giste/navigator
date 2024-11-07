@@ -3,6 +3,10 @@ package org.giste.navigator.data
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -11,6 +15,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
@@ -24,8 +29,12 @@ private const val CLASS_NAME = "PdfRendererRepository"
 
 class RoadbookRendererRepository @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val dataStore: DataStore<Preferences>,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : RoadbookRepository {
+    companion object {
+        val ROADBOOK_URI = stringPreferencesKey("ROADBOOK_URI")
+    }
     override suspend fun getPages(): Flow<PagingData<PdfPage>> {
         val internalUri = getInternalUri()
 
@@ -64,8 +73,14 @@ class RoadbookRendererRepository @Inject constructor(
             outputStream.flush()
             inputStream.close()
             outputStream.close()
+
+            saveUri(roadbookUri)
         }
         Log.d(CLASS_NAME, "Loaded roadbook: ${roadbookFile.canonicalFile}")
+    }
+
+    override fun getRoadbookUri(): Flow<String> {
+        return dataStore.data.map { it[ROADBOOK_URI] ?: "" }
     }
 
     private fun getInternalUri(): Uri {
@@ -78,4 +93,7 @@ class RoadbookRendererRepository @Inject constructor(
         }
     }
 
+    private suspend fun saveUri(uri: String) {
+        dataStore.edit { it[ROADBOOK_URI] = uri }
+    }
 }
