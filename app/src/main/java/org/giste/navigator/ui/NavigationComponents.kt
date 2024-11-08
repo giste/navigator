@@ -200,7 +200,7 @@ private fun RoadbookPage(
 
 @Composable
 fun CommandBar(
-    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+    onEvent: (NavigationViewModel.UiAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val selectRoadbookLauncher = rememberLauncherForActivityResult(
@@ -208,7 +208,7 @@ fun CommandBar(
     ) { uri ->
         if (uri != null) {
             // Update the state with the Uri
-            onEvent(NavigationViewModel.UiEvent.SetUri(uri))
+            onEvent(NavigationViewModel.UiAction.SetUri(uri))
         }
     }
 
@@ -218,7 +218,7 @@ fun CommandBar(
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         CommandBarButton(
-            onClick = { onEvent(NavigationViewModel.UiEvent.DecreasePartial) },
+            onClick = { onEvent(NavigationViewModel.UiAction.DecreasePartial) },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = "Decrease partial",
             modifier = Modifier
@@ -226,7 +226,7 @@ fun CommandBar(
                 .testTag(DECREASE_PARTIAL)
         )
         CommandBarButton(
-            onClick = { onEvent(NavigationViewModel.UiEvent.ResetPartial) },
+            onClick = { onEvent(NavigationViewModel.UiAction.ResetPartial) },
             icon = Icons.Default.Refresh,
             contentDescription = "Reset partial",
             modifier = Modifier
@@ -234,7 +234,7 @@ fun CommandBar(
                 .testTag(RESET_PARTIAL)
         )
         CommandBarButton(
-            onClick = { onEvent(NavigationViewModel.UiEvent.IncreasePartial) },
+            onClick = { onEvent(NavigationViewModel.UiAction.IncreasePartial) },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "Increase partial",
             modifier = Modifier
@@ -242,7 +242,7 @@ fun CommandBar(
                 .testTag(INCREASE_PARTIAL)
         )
         CommandBarButton(
-            onClick = { onEvent(NavigationViewModel.UiEvent.ResetTrip) },
+            onClick = { onEvent(NavigationViewModel.UiAction.ResetTrip) },
             icon = Icons.Default.Clear,
             contentDescription = "Reset Trip",
             modifier = Modifier

@@ -32,19 +32,19 @@ class NavigationViewModel @Inject constructor(
 ) : ViewModel() {
     private var lastLocation: Location? = null
     private var lastState = State()
-    private var lastNavigationState = NavigationState()
+    private var lastUiState = UiState()
     private var initialized = false
 
-    val navigationState: StateFlow<NavigationState> = combine(
+    val uiState: StateFlow<UiState> = combine(
         tripRepository.getPartial(),
         tripRepository.getTotal(),
         roadbookRepository.getRoadbookUri()
     ) { partial, total, roadbookUri ->
-        var newState = lastNavigationState
-        if (lastState.partial != partial) newState = newState.copy(partial = partial)
-        if (lastState.total != total) newState = newState.copy(total = total)
+        var newUiState = lastUiState
+        if (lastState.partial != partial) newUiState = newUiState.copy(partial = partial)
+        if (lastState.total != total) newUiState = newUiState.copy(total = total)
         if (lastState.roadbookUri != roadbookUri) {
-            newState = newState.copy(
+            newUiState = newUiState.copy(
                 roadbookState = if (roadbookUri == "") {
                     RoadbookState.NotLoaded
                 } else {
@@ -54,13 +54,13 @@ class NavigationViewModel @Inject constructor(
         }
 
         lastState = State(partial, total, roadbookUri)
-        lastNavigationState = newState
+        lastUiState = newUiState
 
-        return@combine newState
+        return@combine newUiState
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),
-        initialValue = NavigationState()
+        initialValue = UiState()
     )
 
     fun initialize() {
@@ -130,49 +130,49 @@ class NavigationViewModel @Inject constructor(
         viewModelScope.launch { roadbookRepository.load(uri.toString()) }
     }
 
-    sealed class UiEvent {
-        data object DecreasePartial : UiEvent()
-        data object ResetPartial : UiEvent()
-        data object IncreasePartial : UiEvent()
-        data object ResetTrip : UiEvent()
-        data class SetPartial(val partial: String) : UiEvent()
-        data class SetTotal(val total: String) : UiEvent()
-        data class SetUri(val uri: Uri) : UiEvent()
+    sealed class UiAction {
+        data object DecreasePartial : UiAction()
+        data object ResetPartial : UiAction()
+        data object IncreasePartial : UiAction()
+        data object ResetTrip : UiAction()
+        data class SetPartial(val partial: String) : UiAction()
+        data class SetTotal(val total: String) : UiAction()
+        data class SetUri(val uri: Uri) : UiAction()
     }
 
-    fun onEvent(event: UiEvent) {
+    fun onAction(event: UiAction) {
         when (event) {
-            is UiEvent.DecreasePartial -> {
+            is UiAction.DecreasePartial -> {
                 decreasePartial()
             }
 
-            is UiEvent.ResetPartial -> {
+            is UiAction.ResetPartial -> {
                 resetPartial()
             }
 
-            is UiEvent.IncreasePartial -> {
+            is UiAction.IncreasePartial -> {
                 increasePartial()
             }
 
-            is UiEvent.ResetTrip -> {
+            is UiAction.ResetTrip -> {
                 resetTrip()
             }
 
-            is UiEvent.SetPartial -> {
+            is UiAction.SetPartial -> {
                 setPartial(event.partial)
             }
 
-            is UiEvent.SetTotal -> {
+            is UiAction.SetTotal -> {
                 setTotal(event.total)
             }
 
-            is UiEvent.SetUri -> {
+            is UiAction.SetUri -> {
                 setRoadbookUri(event.uri)
             }
         }
     }
 
-    data class NavigationState(
+    data class UiState(
         val partial: Int = 0,
         val total: Int = 0,
         val roadbookState: RoadbookState = RoadbookState.NotLoaded

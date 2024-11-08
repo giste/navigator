@@ -33,7 +33,7 @@ const val NAVIGATION_CONTENT = "NAVIGATION_CONTENT"
 fun NavigationPreview() {
     NavigatorTheme {
         NavigationContent(
-            state = NavigationViewModel.NavigationState(),
+            state = NavigationViewModel.UiState(),
             onEvent = {},
         )
     }
@@ -45,15 +45,15 @@ fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
         viewModel.initialize()
     }
     NavigationContent(
-        state = viewModel.navigationState.collectAsStateWithLifecycle().value,
-        onEvent = viewModel::onEvent,
+        state = viewModel.uiState.collectAsStateWithLifecycle().value,
+        onEvent = viewModel::onAction,
     )
 }
 
 @Composable
 fun NavigationContent(
-    state: NavigationViewModel.NavigationState,
-    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+    state: NavigationViewModel.UiState,
+    onEvent: (NavigationViewModel.UiAction) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pdfState = rememberLazyListState()
@@ -69,17 +69,17 @@ fun NavigationContent(
                 if (it.type == KeyEventType.KeyUp) {
                     when (it.key) {
                         Key.DirectionRight -> {
-                            onEvent(NavigationViewModel.UiEvent.IncreasePartial)
+                            onEvent(NavigationViewModel.UiAction.IncreasePartial)
                             return@onKeyEvent true
                         }
 
                         Key.DirectionLeft -> {
-                            onEvent(NavigationViewModel.UiEvent.DecreasePartial)
+                            onEvent(NavigationViewModel.UiAction.DecreasePartial)
                             return@onKeyEvent true
                         }
 
                         Key.F6 -> {
-                            onEvent(NavigationViewModel.UiEvent.ResetPartial)
+                            onEvent(NavigationViewModel.UiAction.ResetPartial)
                             return@onKeyEvent true
                         }
 

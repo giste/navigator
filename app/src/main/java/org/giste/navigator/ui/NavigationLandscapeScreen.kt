@@ -28,7 +28,7 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 fun NavigationLandscapePreview() {
     NavigatorTheme {
         NavigationLandscapeScreen(
-            state = NavigationViewModel.NavigationState(123456, 1234567),
+            state = NavigationViewModel.UiState(123456, 1234567),
             onEvent = {},
             pdfState = LazyListState()
         )
@@ -37,8 +37,8 @@ fun NavigationLandscapePreview() {
 
 @Composable
 fun NavigationLandscapeScreen(
-    state: NavigationViewModel.NavigationState,
-    onEvent: (NavigationViewModel.UiEvent) -> Unit,
+    state: NavigationViewModel.UiState,
+    onEvent: (NavigationViewModel.UiAction) -> Unit,
     pdfState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
@@ -104,7 +104,7 @@ fun NavigationLandscapeScreen(
             text = state.partial.div(10).toString(),
             numberOfIntegerDigits = 3,
             numberOfDecimals = 2,
-            onAccept = { onEvent(NavigationViewModel.UiEvent.SetPartial(it)) }
+            onAccept = { onEvent(NavigationViewModel.UiAction.SetPartial(it)) }
         )
     }
 
@@ -115,7 +115,7 @@ fun NavigationLandscapeScreen(
             text = state.total.div(10).toString(),
             numberOfIntegerDigits = 4,
             numberOfDecimals = 2,
-            onAccept = { onEvent(NavigationViewModel.UiEvent.SetTotal(it)) }
+            onAccept = { onEvent(NavigationViewModel.UiAction.SetTotal(it)) }
         )
     }
 }
