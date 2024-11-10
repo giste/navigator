@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -37,6 +38,7 @@ fun NavigationPreview() {
         NavigationContent(
             state = NavigationViewModel.UiState(),
             onEvent = {},
+            firstState = NavigationViewModel.UiState()
         )
     }
 }
@@ -46,20 +48,33 @@ fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
     LaunchedEffect(Unit) {
         viewModel.initialize()
     }
-    NavigationContent(
-        state = viewModel.uiState.collectAsStateWithLifecycle().value,
-        onEvent = viewModel::onAction,
-    )
+
+    if (viewModel.initialized) {
+        NavigationContent(
+            state = viewModel.uiState.collectAsStateWithLifecycle().value,
+            onEvent = viewModel::onAction,
+            firstState = viewModel.lastUiState
+        )
+    }
 }
 
 @Composable
 fun NavigationContent(
     state: NavigationViewModel.UiState,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
+    firstState: NavigationViewModel.UiState,
 ) {
+    Log.d("NavigationContent", "Composing with Scroll(${firstState.pageOffset})")
     val coroutineScope = rememberCoroutineScope()
-    val pdfState = rememberLazyListState()
+    val pdfState = rememberLazyListState(initialFirstVisibleItemScrollOffset = firstState.pageOffset)
     val numberOfPixels = 317.0f
+
+    LaunchedEffect(pdfState.isScrollInProgress) {
+        if (!pdfState.isScrollInProgress) {
+            Log.d("NavigationContent", "Saving scroll(${pdfState.firstVisibleItemScrollOffset})")
+            onEvent(NavigationViewModel.UiAction.SetScroll(pdfState.firstVisibleItemScrollOffset))
+        }
+    }
 
     ManagePermissions()
     Scaffold(

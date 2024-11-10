@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -34,6 +35,7 @@ class RoadbookRendererRepository @Inject constructor(
 ) : RoadbookRepository {
     companion object {
         val ROADBOOK_URI = stringPreferencesKey("ROADBOOK_URI")
+        val ROADBOOK_SCROLL_OFFSET = intPreferencesKey("ROADBOOK_SCROLL_OFFSET")
     }
     override suspend fun getPages(): Flow<PagingData<PdfPage>> {
         val internalUri = getInternalUri()
@@ -81,6 +83,20 @@ class RoadbookRendererRepository @Inject constructor(
 
     override fun getRoadbookUri(): Flow<String> {
         return dataStore.data.map { it[ROADBOOK_URI] ?: "" }
+    }
+
+    override fun getScroll(): Flow<Int> {
+        return dataStore.data.map {
+            Log.v(CLASS_NAME, "GetScroll(${it[ROADBOOK_SCROLL_OFFSET]})")
+            it[ROADBOOK_SCROLL_OFFSET] ?: 0
+        }
+    }
+
+    override suspend fun setScroll(offset: Int) {
+        dataStore.edit {
+            Log.v(CLASS_NAME, "setScroll = ${it[ROADBOOK_SCROLL_OFFSET]}")
+            it[ROADBOOK_SCROLL_OFFSET] = offset
+        }
     }
 
     private fun getInternalUri(): Uri {

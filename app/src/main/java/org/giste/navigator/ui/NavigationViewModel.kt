@@ -1,6 +1,10 @@
 package org.giste.navigator.ui
 
 import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -10,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -19,10 +24,11 @@ import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
-import org.giste.navigator.model.State
 import org.giste.navigator.model.TripRepository
 import javax.inject.Inject
 import kotlin.math.roundToInt
+
+private const val CLASS_NAME = "NavigationViewModel"
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
@@ -31,43 +37,75 @@ class NavigationViewModel @Inject constructor(
     private val tripRepository: TripRepository,
 ) : ViewModel() {
     private var lastLocation: Location? = null
-    private var lastState = State()
-    private var lastUiState = UiState()
-    private var initialized = false
+    lateinit var lastUiState: UiState
+        private set
+    var initialized by mutableStateOf(false)
+        private set
+    private var lastRoadbookUri = ""
 
-    val uiState: StateFlow<UiState> = combine(
-        tripRepository.getPartial(),
-        tripRepository.getTotal(),
-        roadbookRepository.getRoadbookUri()
-    ) { partial, total, roadbookUri ->
-        var newUiState = lastUiState
-        if (lastState.partial != partial) newUiState = newUiState.copy(partial = partial)
-        if (lastState.total != total) newUiState = newUiState.copy(total = total)
-        if (lastState.roadbookUri != roadbookUri) {
-            newUiState = newUiState.copy(
-                roadbookState = if (roadbookUri == "") {
-                    RoadbookState.NotLoaded
-                } else {
-                    RoadbookState.Loaded(roadbookRepository.getPages())
-                }
-            )
-        }
-
-        lastState = State(partial, total, roadbookUri)
-        lastUiState = newUiState
-
-        return@combine newUiState
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000L),
-        initialValue = UiState()
-    )
+    lateinit var uiState: StateFlow<UiState>
 
     fun initialize() {
+        Log.d(CLASS_NAME, "Entering initialize()")
         if (initialized) return
 
-        initialized = true
-        startListenForLocations()
+        viewModelScope.launch {
+            lastUiState = collectFirstState()
+            Log.d(CLASS_NAME, "Last uiState: $lastUiState")
+
+            uiState = collectUiState()
+            Log.d(CLASS_NAME, "UiState: $uiState")
+            startListenForLocations()
+            initialized = true
+            Log.d(CLASS_NAME, "Initialized: $initialized")
+        }
+    }
+
+    private suspend fun collectFirstState(): UiState {
+        return UiState(
+            partial = tripRepository.getPartial().first(),
+            total = tripRepository.getTotal().first(),
+            roadbookState = if (roadbookRepository.getRoadbookUri().first() == "") {
+                RoadbookState.NotLoaded
+            } else {
+                RoadbookState.Loaded(roadbookRepository.getPages())
+            },
+            pageOffset = roadbookRepository.getScroll().first()
+        )
+    }
+
+    private fun collectUiState(): StateFlow<UiState> {
+        return combine(
+            tripRepository.getPartial(),
+            tripRepository.getTotal(),
+            roadbookRepository.getRoadbookUri(),
+            roadbookRepository.getScroll(),
+        ) { partial, total, roadbookUri, offset ->
+            var newUiState = lastUiState
+            if (lastUiState.partial != partial) newUiState = newUiState.copy(partial = partial)
+            if (lastUiState.total != total) newUiState = newUiState.copy(total = total)
+            if (lastRoadbookUri != roadbookUri) {
+                newUiState = newUiState.copy(
+                    roadbookState = if (roadbookUri == "") {
+                        RoadbookState.NotLoaded
+                    } else {
+                        RoadbookState.Loaded(roadbookRepository.getPages())
+                    }
+                )
+                lastRoadbookUri = roadbookUri
+            }
+            if (lastUiState.pageOffset != offset) newUiState = newUiState.copy(pageOffset = offset)
+
+            Log.d(CLASS_NAME, "uiSate: ${uiState.value}")
+
+            lastUiState = newUiState
+
+            return@combine newUiState
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000L),
+            initialValue = lastUiState
+        )
     }
 
     private fun startListenForLocations() {
@@ -130,6 +168,10 @@ class NavigationViewModel @Inject constructor(
         viewModelScope.launch { roadbookRepository.load(uri.toString()) }
     }
 
+    private fun setScroll(offset: Int) {
+        viewModelScope.launch { roadbookRepository.setScroll(offset) }
+    }
+
     sealed class UiAction {
         data object DecreasePartial : UiAction()
         data object ResetPartial : UiAction()
@@ -138,44 +180,27 @@ class NavigationViewModel @Inject constructor(
         data class SetPartial(val partial: String) : UiAction()
         data class SetTotal(val total: String) : UiAction()
         data class SetUri(val uri: Uri) : UiAction()
+        data class SetScroll(val offset: Int) : UiAction()
     }
 
     fun onAction(event: UiAction) {
         when (event) {
-            is UiAction.DecreasePartial -> {
-                decreasePartial()
-            }
-
-            is UiAction.ResetPartial -> {
-                resetPartial()
-            }
-
-            is UiAction.IncreasePartial -> {
-                increasePartial()
-            }
-
-            is UiAction.ResetTrip -> {
-                resetTrip()
-            }
-
-            is UiAction.SetPartial -> {
-                setPartial(event.partial)
-            }
-
-            is UiAction.SetTotal -> {
-                setTotal(event.total)
-            }
-
-            is UiAction.SetUri -> {
-                setRoadbookUri(event.uri)
-            }
+            is UiAction.DecreasePartial -> decreasePartial()
+            is UiAction.ResetPartial -> resetPartial()
+            is UiAction.IncreasePartial -> increasePartial()
+            is UiAction.ResetTrip -> resetTrip()
+            is UiAction.SetPartial -> setPartial(event.partial)
+            is UiAction.SetTotal -> setTotal(event.total)
+            is UiAction.SetUri -> setRoadbookUri(event.uri)
+            is UiAction.SetScroll -> setScroll(event.offset)
         }
     }
 
     data class UiState(
         val partial: Int = 0,
         val total: Int = 0,
-        val roadbookState: RoadbookState = RoadbookState.NotLoaded
+        val roadbookState: RoadbookState = RoadbookState.NotLoaded,
+        val pageOffset: Int = 0,
     )
 
     sealed class RoadbookState {
