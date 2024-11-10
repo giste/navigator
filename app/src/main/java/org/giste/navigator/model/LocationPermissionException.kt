@@ -1,4 +1,3 @@
 package org.giste.navigator.model
 
-class LocationPermissionException : Exception() {
-}
+class LocationPermissionException : Exception()

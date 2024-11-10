@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.RoadbookRepository
+import org.giste.navigator.model.RoadbookScroll
 import org.giste.navigator.model.TripRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -36,6 +37,7 @@ class NavigationViewModelStateTests {
     @BeforeEach
     fun beforeEach() {
         coEvery { roadbookRepository.getRoadbookUri() } returns flow { emit("") }
+        coEvery { roadbookRepository.getScroll() } returns flow { emit(RoadbookScroll())}
 
         tripRepository = TripFakeRepository()
         viewModel = NavigationViewModel(locationRepository, roadbookRepository, tripRepository)
@@ -51,20 +53,20 @@ class NavigationViewModelStateTests {
     inner class PartialIsMin {
         @Test
         fun `increase() should add 10 meters`() = runTest {
-            assertEquals(0, viewModel.navigationState.first().partial)
+            assertEquals(0, viewModel.uiState.first().partial)
 
-            viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
+            viewModel.onAction(NavigationViewModel.UiAction.IncreasePartial)
 
-            assertEquals(10, viewModel.navigationState.first().partial)
+            assertEquals(10, viewModel.uiState.first().partial)
         }
 
         @Test
         fun `decrease() should not change partial`() = runTest {
-            assertEquals(0, viewModel.navigationState.first().partial)
+            assertEquals(0, viewModel.uiState.first().partial)
 
-            viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
+            viewModel.onAction(NavigationViewModel.UiAction.DecreasePartial)
 
-            assertEquals(0, viewModel.navigationState.first().partial)
+            assertEquals(0, viewModel.uiState.first().partial)
         }
     }
 
@@ -78,20 +80,20 @@ class NavigationViewModelStateTests {
 
         @Test
         fun `increase() should not change partial`() = runTest {
-            assertEquals(999990, viewModel.navigationState.first().partial)
+            assertEquals(999990, viewModel.uiState.first().partial)
 
-            viewModel.onEvent(NavigationViewModel.UiEvent.IncreasePartial)
+            viewModel.onAction(NavigationViewModel.UiAction.IncreasePartial)
 
-            assertEquals(999990, viewModel.navigationState.first().partial)
+            assertEquals(999990, viewModel.uiState.first().partial)
         }
 
         @Test
         fun `decrease() should subtract 10 meters`() = runTest {
-            assertEquals(999990, viewModel.navigationState.first().partial)
+            assertEquals(999990, viewModel.uiState.first().partial)
 
-            viewModel.onEvent(NavigationViewModel.UiEvent.DecreasePartial)
+            viewModel.onAction(NavigationViewModel.UiAction.DecreasePartial)
 
-            assertEquals(999980, viewModel.navigationState.first().partial)
+            assertEquals(999980, viewModel.uiState.first().partial)
         }
     }
 
@@ -106,21 +108,21 @@ class NavigationViewModelStateTests {
 
         @Test
         fun `resetPartial() should set partial to 0`() = runTest {
-            assertEquals(123450, viewModel.navigationState.first().partial)
+            assertEquals(123450, viewModel.uiState.first().partial)
 
-            viewModel.onEvent(NavigationViewModel.UiEvent.ResetPartial)
+            viewModel.onAction(NavigationViewModel.UiAction.ResetPartial)
 
-            assertEquals(0, viewModel.navigationState.first().partial)
+            assertEquals(0, viewModel.uiState.first().partial)
         }
 
         @Test
         fun `resetAll() should set partial and total to 0`() = runTest {
-            assertEquals(123450, viewModel.navigationState.first().partial)
+            assertEquals(123450, viewModel.uiState.first().partial)
 
-            viewModel.onEvent(NavigationViewModel.UiEvent.ResetTrip)
+            viewModel.onAction(NavigationViewModel.UiAction.ResetTrip)
 
-            assertEquals(0, viewModel.navigationState.first().partial)
-            assertEquals(0, viewModel.navigationState.value.total)
+            assertEquals(0, viewModel.uiState.first().partial)
+            assertEquals(0, viewModel.uiState.value.total)
         }
     }
 
@@ -129,15 +131,15 @@ class NavigationViewModelStateTests {
     inner class SetPartialTests {
         @Test
         fun `when it's in 0-999 should update partial`() = runTest {
-            viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("123,45"))
+            viewModel.onAction(NavigationViewModel.UiAction.SetPartial("123,45"))
 
-            assertEquals(123450, viewModel.navigationState.first().partial)
+            assertEquals(123450, viewModel.uiState.first().partial)
         }
 
         @Test
         fun `when it's out of range should throw IllegalArgumentException`() = runTest {
             assertThrows(IllegalArgumentException::class.java) {
-                viewModel.onEvent(NavigationViewModel.UiEvent.SetPartial("1000,00"))
+                viewModel.onAction(NavigationViewModel.UiAction.SetPartial("1000,00"))
             }
         }
     }
@@ -152,7 +154,7 @@ class NavigationViewModelStateTests {
 
         advanceUntilIdle()
 
-        assertEquals(TestRoute.getDistance(), viewModel.navigationState.take(TestRoute.getLocations().count()).first().partial)
-        assertEquals(TestRoute.getDistance(), viewModel.navigationState.value.total)
+        assertEquals(TestRoute.getDistance(), viewModel.uiState.take(TestRoute.getLocations().count()).first().partial)
+        assertEquals(TestRoute.getDistance(), viewModel.uiState.value.total)
     }
 }

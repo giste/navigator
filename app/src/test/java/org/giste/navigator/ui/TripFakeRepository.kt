@@ -14,13 +14,11 @@ class TripFakeRepository : TripRepository {
     override fun getTotal() = _total.asStateFlow()
 
     override suspend fun incrementPartial() {
-        _partial.update { getSafePartial(it + 10)
-        }
+        _partial.update { getSafePartial(it + 10) }
     }
 
     override suspend fun decrementPartial() {
-        _partial.update { getSafePartial(it - 10)
-        }
+        _partial.update { getSafePartial(it - 10) }
     }
 
     override suspend fun resetPartial() {
