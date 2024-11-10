@@ -1,5 +1,6 @@
 package org.giste.navigator.ui
 
+import android.util.Log
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
@@ -97,9 +99,13 @@ fun NavigationContent(
                             return@onKeyEvent true
                         }
 
-                        else -> return@onKeyEvent false
+                        else -> {
+                            Log.d("NavigationContent", "KeyEvent( ${it.key.nativeKeyCode}) up not processed")
+                            return@onKeyEvent false
+                        }
                     }
                 } else {
+                    Log.d("NavigationContent", "KeyEvent(${it.type}, ${it.key.nativeKeyCode}) not processed")
                     false
                 }
             },
