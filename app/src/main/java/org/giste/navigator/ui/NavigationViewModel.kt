@@ -37,8 +37,7 @@ class NavigationViewModel @Inject constructor(
     private val tripRepository: TripRepository,
 ) : ViewModel() {
     private var lastLocation: Location? = null
-    lateinit var lastUiState: UiState
-        private set
+    private lateinit var lastUiState: UiState
     var initialized by mutableStateOf(false)
         private set
     private var lastRoadbookUri = ""

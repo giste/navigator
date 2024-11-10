@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -38,7 +37,6 @@ fun NavigationPreview() {
         NavigationContent(
             state = NavigationViewModel.UiState(),
             onEvent = {},
-            firstState = NavigationViewModel.UiState()
         )
     }
 }
@@ -53,7 +51,6 @@ fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
         NavigationContent(
             state = viewModel.uiState.collectAsStateWithLifecycle().value,
             onEvent = viewModel::onAction,
-            firstState = viewModel.lastUiState
         )
     }
 }
@@ -62,11 +59,10 @@ fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
 fun NavigationContent(
     state: NavigationViewModel.UiState,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
-    firstState: NavigationViewModel.UiState,
 ) {
-    Log.d("NavigationContent", "Composing with Scroll(${firstState.pageOffset})")
+    Log.d("NavigationContent", "Composing with Scroll(${state.pageOffset})")
     val coroutineScope = rememberCoroutineScope()
-    val pdfState = rememberLazyListState(initialFirstVisibleItemScrollOffset = firstState.pageOffset)
+    val pdfState = rememberLazyListState(initialFirstVisibleItemScrollOffset = state.pageOffset)
     val numberOfPixels = 317.0f
 
     LaunchedEffect(pdfState.isScrollInProgress) {
