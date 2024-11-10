@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.RoadbookRepository
+import org.giste.navigator.model.RoadbookScroll
 import org.giste.navigator.model.TripRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -36,6 +37,7 @@ class NavigationViewModelStateTests {
     @BeforeEach
     fun beforeEach() {
         coEvery { roadbookRepository.getRoadbookUri() } returns flow { emit("") }
+        coEvery { roadbookRepository.getScroll() } returns flow { emit(RoadbookScroll())}
 
         tripRepository = TripFakeRepository()
         viewModel = NavigationViewModel(locationRepository, roadbookRepository, tripRepository)

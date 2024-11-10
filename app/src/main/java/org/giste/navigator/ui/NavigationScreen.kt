@@ -68,6 +68,11 @@ fun NavigationContent(
     )
     val numberOfPixels = 317.0f
 
+    LaunchedEffect(state.roadbookState) {
+        // Move to top on roadbook change
+        roadbookState.animateScrollToItem(0,0)
+    }
+
     LaunchedEffect(roadbookState.isScrollInProgress) {
         if (!roadbookState.isScrollInProgress) {
             Log.d("NavigationContent", "Saving scroll(${roadbookState.firstVisibleItemScrollOffset})")

@@ -98,9 +98,9 @@ class NavigationViewModel @Inject constructor(
             if (lastUiState.pageOffset != scroll.pageOffset) newUiState =
                 newUiState.copy(pageOffset = scroll.pageOffset)
 
-            Log.d(CLASS_NAME, "uiSate: ${uiState.value}")
-
             lastUiState = newUiState
+
+            Log.d(CLASS_NAME, "uiSate: $newUiState")
 
             return@combine newUiState
         }.stateIn(
