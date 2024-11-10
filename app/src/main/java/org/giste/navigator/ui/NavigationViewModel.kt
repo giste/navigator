@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
@@ -37,23 +38,18 @@ class NavigationViewModel @Inject constructor(
     private val tripRepository: TripRepository,
 ) : ViewModel() {
     private var lastLocation: Location? = null
-    private lateinit var lastUiState: UiState
+    private var lastUiState: UiState = runBlocking { collectFirstState() }
     var initialized by mutableStateOf(false)
         private set
     private var lastRoadbookUri = ""
 
-    lateinit var uiState: StateFlow<UiState>
+    val uiState: StateFlow<UiState> = collectUiState()
 
     fun initialize() {
         Log.d(CLASS_NAME, "Entering initialize()")
         if (initialized) return
 
         viewModelScope.launch {
-            lastUiState = collectFirstState()
-            Log.d(CLASS_NAME, "Last uiState: $lastUiState")
-
-            uiState = collectUiState()
-            Log.d(CLASS_NAME, "UiState: $uiState")
             startListenForLocations()
             initialized = true
             Log.d(CLASS_NAME, "Initialized: $initialized")
