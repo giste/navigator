@@ -60,15 +60,23 @@ fun NavigationContent(
     state: NavigationViewModel.UiState,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
 ) {
-    Log.d("NavigationContent", "Composing with Scroll(${state.pageOffset})")
+    Log.d("NavigationContent", "Composing with Scroll(${state.pageIndex}, ${state.pageOffset})")
     val coroutineScope = rememberCoroutineScope()
-    val pdfState = rememberLazyListState(initialFirstVisibleItemScrollOffset = state.pageOffset)
+    val roadbookState = rememberLazyListState(
+        initialFirstVisibleItemIndex = state.pageIndex,
+        initialFirstVisibleItemScrollOffset = state.pageOffset
+    )
     val numberOfPixels = 317.0f
 
-    LaunchedEffect(pdfState.isScrollInProgress) {
-        if (!pdfState.isScrollInProgress) {
-            Log.d("NavigationContent", "Saving scroll(${pdfState.firstVisibleItemScrollOffset})")
-            onEvent(NavigationViewModel.UiAction.SetScroll(pdfState.firstVisibleItemScrollOffset))
+    LaunchedEffect(roadbookState.isScrollInProgress) {
+        if (!roadbookState.isScrollInProgress) {
+            Log.d("NavigationContent", "Saving scroll(${roadbookState.firstVisibleItemScrollOffset})")
+            onEvent(
+                NavigationViewModel.UiAction.SetScroll(
+                    pageIndex = roadbookState.firstVisibleItemIndex,
+                    pageOffset = roadbookState.firstVisibleItemScrollOffset
+                )
+            )
         }
     }
 
@@ -98,14 +106,14 @@ fun NavigationContent(
 
                         Key.DirectionUp -> {
                             coroutineScope.launch {
-                                pdfState.animateScrollBy(numberOfPixels)
+                                roadbookState.animateScrollBy(numberOfPixels)
                             }
                             return@onKeyEvent true
                         }
 
                         Key.DirectionDown -> {
                             coroutineScope.launch {
-                                pdfState.animateScrollBy(-numberOfPixels)
+                                roadbookState.animateScrollBy(-numberOfPixels)
                             }
                             return@onKeyEvent true
                         }
@@ -124,7 +132,7 @@ fun NavigationContent(
         NavigationLandscapeScreen(
             state = state,
             onEvent = onEvent,
-            pdfState = pdfState,
+            pdfState = roadbookState,
             modifier = Modifier
                 .padding(innerPadding)
                 // Consume this insets so that it's not applied again when using safeDrawing in the hierarchy below

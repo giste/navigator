@@ -25,6 +25,7 @@ import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
+import org.giste.navigator.model.RoadbookScroll
 import org.giste.navigator.model.TripRepository
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -57,6 +58,8 @@ class NavigationViewModel @Inject constructor(
     }
 
     private suspend fun collectFirstState(): UiState {
+        val roadbookScroll = roadbookRepository.getScroll().first()
+
         return UiState(
             partial = tripRepository.getPartial().first(),
             total = tripRepository.getTotal().first(),
@@ -65,7 +68,8 @@ class NavigationViewModel @Inject constructor(
             } else {
                 RoadbookState.Loaded(roadbookRepository.getPages())
             },
-            pageOffset = roadbookRepository.getScroll().first()
+            pageIndex = roadbookScroll.pageIndex,
+            pageOffset = roadbookScroll.pageOffset,
         )
     }
 
@@ -75,7 +79,7 @@ class NavigationViewModel @Inject constructor(
             tripRepository.getTotal(),
             roadbookRepository.getRoadbookUri(),
             roadbookRepository.getScroll(),
-        ) { partial, total, roadbookUri, offset ->
+        ) { partial, total, roadbookUri, scroll ->
             var newUiState = lastUiState
             if (lastUiState.partial != partial) newUiState = newUiState.copy(partial = partial)
             if (lastUiState.total != total) newUiState = newUiState.copy(total = total)
@@ -89,7 +93,10 @@ class NavigationViewModel @Inject constructor(
                 )
                 lastRoadbookUri = roadbookUri
             }
-            if (lastUiState.pageOffset != offset) newUiState = newUiState.copy(pageOffset = offset)
+            if (lastUiState.pageIndex != scroll.pageIndex) newUiState =
+                newUiState.copy(pageIndex = scroll.pageIndex)
+            if (lastUiState.pageOffset != scroll.pageOffset) newUiState =
+                newUiState.copy(pageOffset = scroll.pageOffset)
 
             Log.d(CLASS_NAME, "uiSate: ${uiState.value}")
 
@@ -163,8 +170,12 @@ class NavigationViewModel @Inject constructor(
         viewModelScope.launch { roadbookRepository.load(uri.toString()) }
     }
 
-    private fun setScroll(offset: Int) {
-        viewModelScope.launch { roadbookRepository.setScroll(offset) }
+    private fun setScroll(pageIndex: Int, pageOffset: Int) {
+        viewModelScope.launch {
+            roadbookRepository.setScroll(
+                RoadbookScroll(pageIndex, pageOffset)
+            )
+        }
     }
 
     sealed class UiAction {
@@ -175,7 +186,7 @@ class NavigationViewModel @Inject constructor(
         data class SetPartial(val partial: String) : UiAction()
         data class SetTotal(val total: String) : UiAction()
         data class SetUri(val uri: Uri) : UiAction()
-        data class SetScroll(val offset: Int) : UiAction()
+        data class SetScroll(val pageIndex: Int, val pageOffset: Int) : UiAction()
     }
 
     fun onAction(event: UiAction) {
@@ -187,7 +198,7 @@ class NavigationViewModel @Inject constructor(
             is UiAction.SetPartial -> setPartial(event.partial)
             is UiAction.SetTotal -> setTotal(event.total)
             is UiAction.SetUri -> setRoadbookUri(event.uri)
-            is UiAction.SetScroll -> setScroll(event.offset)
+            is UiAction.SetScroll -> setScroll(event.pageIndex, event.pageOffset)
         }
     }
 
@@ -195,6 +206,7 @@ class NavigationViewModel @Inject constructor(
         val partial: Int = 0,
         val total: Int = 0,
         val roadbookState: RoadbookState = RoadbookState.NotLoaded,
+        val pageIndex: Int = 0,
         val pageOffset: Int = 0,
     )
 

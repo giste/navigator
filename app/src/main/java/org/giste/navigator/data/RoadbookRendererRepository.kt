@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
+import org.giste.navigator.model.RoadbookScroll
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -35,7 +36,8 @@ class RoadbookRendererRepository @Inject constructor(
 ) : RoadbookRepository {
     companion object {
         val ROADBOOK_URI = stringPreferencesKey("ROADBOOK_URI")
-        val ROADBOOK_SCROLL_OFFSET = intPreferencesKey("ROADBOOK_SCROLL_OFFSET")
+        val ROADBOOK_PAGE_INDEX = intPreferencesKey("ROADBOOK_PAGE_INDEX")
+        val ROADBOOK_PAGE_OFFSET = intPreferencesKey("ROADBOOK_PAGE_OFFSET")
     }
     override suspend fun getPages(): Flow<PagingData<PdfPage>> {
         val internalUri = getInternalUri()
@@ -77,6 +79,8 @@ class RoadbookRendererRepository @Inject constructor(
             outputStream.close()
 
             saveUri(roadbookUri)
+            // New pdf, reset scroll
+            setScroll(RoadbookScroll())
         }
         Log.d(CLASS_NAME, "Loaded roadbook: ${roadbookFile.canonicalFile}")
     }
@@ -85,17 +89,27 @@ class RoadbookRendererRepository @Inject constructor(
         return dataStore.data.map { it[ROADBOOK_URI] ?: "" }
     }
 
-    override fun getScroll(): Flow<Int> {
+    override fun getScroll(): Flow<RoadbookScroll> {
         return dataStore.data.map {
-            Log.v(CLASS_NAME, "GetScroll(${it[ROADBOOK_SCROLL_OFFSET]})")
-            it[ROADBOOK_SCROLL_OFFSET] ?: 0
+            Log.v(
+                CLASS_NAME,
+                "getScroll = (${it[ROADBOOK_PAGE_INDEX]}, ${it[ROADBOOK_PAGE_OFFSET]})"
+            )
+            RoadbookScroll(
+                pageIndex = it[ROADBOOK_PAGE_INDEX] ?: 0,
+                pageOffset = it[ROADBOOK_PAGE_OFFSET] ?: 0
+            )
         }
     }
 
-    override suspend fun setScroll(offset: Int) {
+    override suspend fun setScroll(roadbookScroll: RoadbookScroll) {
         dataStore.edit {
-            Log.v(CLASS_NAME, "setScroll = ${it[ROADBOOK_SCROLL_OFFSET]}")
-            it[ROADBOOK_SCROLL_OFFSET] = offset
+            Log.v(
+                CLASS_NAME,
+                "setScroll(${roadbookScroll.pageIndex}, ${roadbookScroll.pageOffset})"
+            )
+            it[ROADBOOK_PAGE_INDEX] = roadbookScroll.pageIndex
+            it[ROADBOOK_PAGE_OFFSET] = roadbookScroll.pageOffset
         }
     }
 
