@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.platform.LocalContext
 import dagger.hilt.android.AndroidEntryPoint
+import org.giste.navigator.ui.ManagePermissions
 import org.giste.navigator.ui.NavigationScreen
 import org.giste.navigator.ui.theme.NavigatorTheme
 
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
             NavigatorTheme {
+                ManagePermissions()
                 NavigationScreen()
             }
         }

@@ -10,10 +10,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
@@ -60,13 +63,17 @@ fun NavigationContent(
     state: NavigationViewModel.UiState,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
 ) {
-    Log.d("NavigationContent", "Composing with Scroll(${state.pageIndex}, ${state.pageOffset})")
     val coroutineScope = rememberCoroutineScope()
     val roadbookState = rememberLazyListState(
         initialFirstVisibleItemIndex = state.pageIndex,
         initialFirstVisibleItemScrollOffset = state.pageOffset
     )
     val numberOfPixels = 317.0f
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     LaunchedEffect(state.roadbookState) {
         // Move to top on roadbook change
@@ -85,38 +92,39 @@ fun NavigationContent(
         }
     }
 
-    ManagePermissions()
+    //ManagePermissions()
     Scaffold(
         modifier = Modifier
             .testTag(NAVIGATION_CONTENT)
             .fillMaxSize()
             .focusable()
+            .focusRequester(focusRequester)
             .onKeyEvent {
                 if (it.type == KeyEventType.KeyUp) {
-                    when (it.key) {
-                        Key.DirectionRight -> {
+                    when (it.key.nativeKeyCode) {
+                        NativeKeyEvent.KEYCODE_DPAD_RIGHT -> {
                             onEvent(NavigationViewModel.UiAction.IncreasePartial)
                             return@onKeyEvent true
                         }
 
-                        Key.DirectionLeft -> {
+                        NativeKeyEvent.KEYCODE_DPAD_LEFT -> {
                             onEvent(NavigationViewModel.UiAction.DecreasePartial)
                             return@onKeyEvent true
                         }
 
-                        Key.F6 -> {
+                        NativeKeyEvent.KEYCODE_F6 -> {
                             onEvent(NavigationViewModel.UiAction.ResetPartial)
                             return@onKeyEvent true
                         }
 
-                        Key.DirectionUp -> {
+                        NativeKeyEvent.KEYCODE_DPAD_UP -> {
                             coroutineScope.launch {
                                 roadbookState.animateScrollBy(numberOfPixels)
                             }
                             return@onKeyEvent true
                         }
 
-                        Key.DirectionDown -> {
+                        NativeKeyEvent.KEYCODE_DPAD_DOWN -> {
                             coroutineScope.launch {
                                 roadbookState.animateScrollBy(-numberOfPixels)
                             }
