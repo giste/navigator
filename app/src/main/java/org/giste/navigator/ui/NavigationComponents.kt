@@ -92,11 +92,12 @@ fun Map(
 ) {
     Text(
         text = "Map",
-        style = MaterialTheme.typography.displayLarge,
-        textAlign = TextAlign.Center,
         modifier = modifier
             .fillMaxSize()
-            .wrapContentHeight()
+            .wrapContentHeight(),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+        style = MaterialTheme.typography.displayLarge,
+        textAlign = TextAlign.Center,
     )
 }
 
@@ -113,7 +114,7 @@ fun Roadbook(
                 modifier = modifier
                     .fillMaxSize()
                     .wrapContentHeight(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 style = MaterialTheme.typography.displayMedium,
                 textAlign = TextAlign.Center,
             )
