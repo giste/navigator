@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -39,6 +40,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
+import org.giste.navigator.R
 import org.giste.navigator.model.PdfPage
 
 const val TRIP_PARTIAL = "TRIP_PARTIAL"
@@ -107,7 +109,7 @@ fun Roadbook(
     when (roadbookState) {
         is NavigationViewModel.RoadbookState.NotLoaded -> {
             Text(
-                text = "Load a Roadbook",
+                text = stringResource(R.string.roadbook_load_message),
                 modifier = modifier
                     .fillMaxSize()
                     .wrapContentHeight(),
@@ -124,7 +126,7 @@ fun Roadbook(
                 is LoadState.Error -> {
                     Text(
                         text = loadState.error.message
-                            ?: "Unexpected error",
+                            ?: stringResource(R.string.roadbook_error_message),
                         modifier = modifier
                             .fillMaxSize()
                             .wrapContentHeight(),
@@ -136,7 +138,7 @@ fun Roadbook(
 
                 is LoadState.Loading -> {
                     Text(
-                        text = "Loading...",
+                        text = stringResource(R.string.roadbook_loading_message),
                         modifier = modifier
                             .fillMaxSize()
                             .wrapContentHeight(),
@@ -220,7 +222,7 @@ fun CommandBar(
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiAction.DecreasePartial) },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = "Decrease partial",
+            contentDescription = stringResource(R.string.partial_decrement_description),
             modifier = Modifier
                 .weight(1f)
                 .testTag(DECREASE_PARTIAL)
@@ -228,7 +230,7 @@ fun CommandBar(
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiAction.ResetPartial) },
             icon = Icons.Default.Refresh,
-            contentDescription = "Reset partial",
+            contentDescription = stringResource(R.string.partial_reset_description),
             modifier = Modifier
                 .weight(1f)
                 .testTag(RESET_PARTIAL)
@@ -236,7 +238,7 @@ fun CommandBar(
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiAction.IncreasePartial) },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "Increase partial",
+            contentDescription = stringResource(R.string.partial_increment_description),
             modifier = Modifier
                 .weight(1f)
                 .testTag(INCREASE_PARTIAL)
@@ -244,7 +246,7 @@ fun CommandBar(
         CommandBarButton(
             onClick = { onEvent(NavigationViewModel.UiAction.ResetTrip) },
             icon = Icons.Default.Clear,
-            contentDescription = "Reset Trip",
+            contentDescription = stringResource(R.string.trip_reset_description),
             modifier = Modifier
                 .weight(1f)
                 .testTag(RESET_TRIP)
@@ -252,13 +254,13 @@ fun CommandBar(
         CommandBarButton(
             onClick = { selectRoadbookLauncher.launch("application/pdf") },
             icon = Icons.Default.Search,
-            contentDescription = "Load roadbook",
+            contentDescription = stringResource(R.string.load_roadbook_description),
             modifier = Modifier.weight(1f)
         )
         CommandBarButton(
             onClick = {},
             icon = Icons.Default.Settings,
-            contentDescription = "Settings",
+            contentDescription = stringResource(R.string.settings_description),
             modifier = Modifier.weight(1f)
         )
     }

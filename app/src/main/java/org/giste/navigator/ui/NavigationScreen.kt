@@ -82,7 +82,10 @@ fun NavigationContent(
 
     LaunchedEffect(roadbookState.isScrollInProgress) {
         if (!roadbookState.isScrollInProgress) {
-            Log.d("NavigationContent", "Saving scroll(${roadbookState.firstVisibleItemScrollOffset})")
+            Log.d(
+                "NavigationContent",
+                "Saving scroll(${roadbookState.firstVisibleItemScrollOffset})"
+            )
             onEvent(
                 NavigationViewModel.UiAction.SetScroll(
                     pageIndex = roadbookState.firstVisibleItemIndex,
@@ -92,7 +95,6 @@ fun NavigationContent(
         }
     }
 
-    //ManagePermissions()
     Scaffold(
         modifier = Modifier
             .testTag(NAVIGATION_CONTENT)
@@ -148,7 +150,8 @@ fun NavigationContent(
             pdfState = roadbookState,
             modifier = Modifier
                 .padding(innerPadding)
-                // Consume this insets so that it's not applied again when using safeDrawing in the hierarchy below
+                // Consume this insets so that it's not applied again
+                // when using safeDrawing in the hierarchy below
                 .consumeWindowInsets(innerPadding)
         )
     }

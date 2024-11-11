@@ -1,9 +1,20 @@
 <resources>
     <string name="app_name">Navigator</string>
 
+    <string name="permissions_title">Permissions</string>
+    <string name="permissions_request">This application needs location permissions to work. Please grant fine location permission.</string>
+
+    <string name="roadbook_load_message">Load a roadbook</string>
+    <string name="roadbook_error_message">Unexpected error</string>
+    <string name="roadbook_loading_message">Loading...</string>
+    <string name="partial_decrement_description">Decrement partial</string>
+    <string name="partial_reset_description">Reset partial</string>
+    <string name="partial_increment_description">Increment partial</string>
+    <string name="trip_reset_description">Reset trip</string>
+    <string name="load_roadbook_description">Load roadbook</string>
+    <string name="settings_description">Settings</string>
+
     <string name="partial_label">Partial</string>
     <string name="total_label">Total</string>
 
-    <string name="permissions_title">Permissions</string>
-    <string name="permissions_request">This application needs location permissions to work. Please grant fine location permission.</string>
 </resources>
