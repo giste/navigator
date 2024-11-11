@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Navigator</string>
+    <string name="app_name">Giste Navigator</string>
 
     <string name="permissions_title">Permissions</string>
     <string name="permissions_request">This application needs location permissions to work. Please grant fine location permission.</string>
 
     <string name="roadbook_load_message">Load a roadbook</string>
     <string name="roadbook_error_message">Unexpected error</string>
-    <string name="roadbook_loading_message">Loading...</string>
+    <string name="roadbook_loading_message">Loading…</string>
     <string name="partial_decrement_description">Decrement partial</string>
     <string name="partial_reset_description">Reset partial</string>
     <string name="partial_increment_description">Increment partial</string>
