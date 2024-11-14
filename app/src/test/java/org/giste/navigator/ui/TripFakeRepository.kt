@@ -1,46 +1,48 @@
 package org.giste.navigator.ui
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.giste.navigator.model.Trip
 import org.giste.navigator.model.TripRepository
 
 class TripFakeRepository : TripRepository {
-    private var _partial = MutableStateFlow(0)
-    private var _total = MutableStateFlow(0)
+    private var trip = MutableStateFlow(Trip())
 
-    override fun getPartial() = _partial.asStateFlow()
-
-    override fun getTotal() = _total.asStateFlow()
+    override fun get(): StateFlow<Trip> = trip.asStateFlow()
 
     override suspend fun incrementPartial() {
-        _partial.update { getSafePartial(it + 10) }
+        trip.update { it.copy(partial = getSafePartial(it.partial + 10)) }
     }
 
     override suspend fun decrementPartial() {
-        _partial.update { getSafePartial(it - 10) }
+        trip.update { it.copy(partial = getSafePartial(it.partial - 10)) }
     }
 
     override suspend fun resetPartial() {
-        _partial.update { 0 }
+        trip.update { it.copy(partial = 0) }
     }
 
     override suspend fun resetTrip() {
-        _partial.update { 0 }
-        _total.update { 0 }
+        trip.update { Trip() }
     }
 
     override suspend fun addDistance(distance: Int) {
-        _partial.update { getSafePartial(it + distance) }
-        _total.update { getSafeTotal(it + distance) }
+        trip.update {
+            Trip(
+                partial = getSafePartial(it.partial + distance),
+                total = getSafeTotal(it.total + distance)
+            )
+        }
     }
 
     override suspend fun setPartial(partial: Int) {
-        _partial.update { getSafePartial(partial) }
+        trip.update { it.copy(partial = getSafePartial(partial)) }
     }
 
     override suspend fun setTotal(total: Int) {
-        _total.update { getSafeTotal(total) }
+        trip.update { it.copy(total = getSafeTotal(total)) }
     }
 
     private fun getSafePartial(partial: Int): Int{

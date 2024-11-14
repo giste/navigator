@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.giste.navigator.ui.theme.NavigatorTheme
+import org.mapsforge.map.datastore.MapDataStore
 
 const val NAVIGATION_CONTENT = "NAVIGATION_CONTENT"
 
@@ -39,6 +40,7 @@ fun NavigationPreview() {
     NavigatorTheme {
         NavigationContent(
             state = NavigationViewModel.UiState(),
+            map = null,
             onEvent = {},
         )
     }
@@ -53,6 +55,7 @@ fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
     if (viewModel.initialized) {
         NavigationContent(
             state = viewModel.uiState.collectAsStateWithLifecycle().value,
+            map = viewModel.mapState.collectAsStateWithLifecycle().value,
             onEvent = viewModel::onAction,
         )
     }
@@ -61,6 +64,7 @@ fun NavigationScreen(viewModel: NavigationViewModel = viewModel()) {
 @Composable
 fun NavigationContent(
     state: NavigationViewModel.UiState,
+    map: MapDataStore?,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -148,6 +152,7 @@ fun NavigationContent(
             state = state,
             onEvent = onEvent,
             pdfState = roadbookState,
+            map = map,
             modifier = Modifier
                 .padding(innerPadding)
                 // Consume this insets so that it's not applied again
