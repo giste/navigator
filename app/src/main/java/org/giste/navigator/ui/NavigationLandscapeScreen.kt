@@ -77,9 +77,10 @@ fun NavigationLandscapeScreen(
                 )
                 HorizontalDivider()
                 Map(
+                    location = state.location,
                     modifier = Modifier
                         .weight(5f)
-                        .padding(padding)
+                        .padding(padding),
                 )
             }
             VerticalDivider()

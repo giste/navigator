@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.giste.navigator.model.Location
@@ -38,11 +40,11 @@ class NavigationViewModel @Inject constructor(
     private val roadbookRepository: RoadbookRepository,
     private val tripRepository: TripRepository,
 ) : ViewModel() {
-    private var lastLocation: Location? = null
     private var lastUiState: UiState = runBlocking { collectFirstState() }
     var initialized by mutableStateOf(false)
         private set
     private var lastRoadbookUri = ""
+    private val _locationState: MutableStateFlow<Location?> = MutableStateFlow(null)
 
     val uiState: StateFlow<UiState> = collectUiState()
 
@@ -79,7 +81,8 @@ class NavigationViewModel @Inject constructor(
             tripRepository.getTotal(),
             roadbookRepository.getRoadbookUri(),
             roadbookRepository.getScroll(),
-        ) { partial, total, roadbookUri, scroll ->
+            _locationState,
+        ) { partial, total, roadbookUri, scroll, location ->
             var newUiState = lastUiState
             if (lastUiState.partial != partial) newUiState = newUiState.copy(partial = partial)
             if (lastUiState.total != total) newUiState = newUiState.copy(total = total)
@@ -97,6 +100,7 @@ class NavigationViewModel @Inject constructor(
                 newUiState.copy(pageIndex = scroll.pageIndex)
             if (lastUiState.pageOffset != scroll.pageOffset) newUiState =
                 newUiState.copy(pageOffset = scroll.pageOffset)
+            if (lastUiState.location != location) newUiState = newUiState.copy(location = location)
 
             lastUiState = newUiState
 
@@ -117,12 +121,12 @@ class NavigationViewModel @Inject constructor(
                 if (e !is LocationPermissionException) throw e
             }
             .onEach { newLocation ->
-                lastLocation?.let {
+                _locationState.value?.let {
                     val distance = it.distanceTo(newLocation).roundToInt()
                     tripRepository.addDistance(distance)
                 }
 
-                lastLocation = newLocation
+                _locationState.update { newLocation }
             }.launchIn(viewModelScope)
     }
 
@@ -208,6 +212,7 @@ class NavigationViewModel @Inject constructor(
         val roadbookState: RoadbookState = RoadbookState.NotLoaded,
         val pageIndex: Int = 0,
         val pageOffset: Int = 0,
+        val location: Location? = null,
     )
 
     sealed class RoadbookState {

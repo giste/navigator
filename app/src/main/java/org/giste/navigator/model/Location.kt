@@ -12,6 +12,8 @@ data class Location(
     @FloatRange(from = -180.0, to = 180.0)
     val longitude: Double,
     val altitude: Double = 0.0,
+    val bearing: Float = 0.0f,
+    val speed: Float = 0.0f,
 ) {
     fun distanceTo(otherLocation: Location): Double {
         val earthRadius = 6367.45

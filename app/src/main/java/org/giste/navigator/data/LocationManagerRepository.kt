@@ -35,7 +35,17 @@ class LocationManagerRepository @Inject constructor(
             if (!hasLocationPermission()) throw LocationPermissionException()
             val locationCallback = LocationListener { location ->
                 location.let {
-                    launch(dispatcher) { send(Location(it.latitude, it.longitude, it.altitude)) }
+                    launch(dispatcher) {
+                        send(
+                            Location(
+                                latitude = it.latitude,
+                                longitude = it.longitude,
+                                altitude = it.altitude,
+                                bearing = if (it.hasBearing()) it.bearing else 0.0f,
+                                speed = if (it.hasSpeed()) it.speed else 0.0f,
+                            )
+                        )
+                    }
                 }
             }
 

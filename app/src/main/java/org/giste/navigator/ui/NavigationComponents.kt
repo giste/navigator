@@ -41,6 +41,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 import org.giste.navigator.R
+import org.giste.navigator.model.Location
 import org.giste.navigator.model.PdfPage
 
 const val TRIP_PARTIAL = "TRIP_PARTIAL"
@@ -88,15 +89,20 @@ fun TripPartial(
 
 @Composable
 fun Map(
+    location: Location?,
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = "Map",
+        text = location?.toString() ?: "Map",
         modifier = modifier
             .fillMaxSize()
             .wrapContentHeight(),
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-        style = MaterialTheme.typography.displayLarge,
+        style = if (location == null) {
+            MaterialTheme.typography.displayLarge
+        } else {
+            MaterialTheme.typography.labelMedium
+        },
         textAlign = TextAlign.Center,
     )
 }
