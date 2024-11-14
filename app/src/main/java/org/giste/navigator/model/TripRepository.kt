@@ -4,8 +4,7 @@ import androidx.annotation.IntRange
 import kotlinx.coroutines.flow.Flow
 
 interface TripRepository {
-    fun getPartial(): Flow<Int>
-    fun getTotal(): Flow<Int>
+    fun get(): Flow<Trip>
     suspend fun incrementPartial()
     suspend fun decrementPartial()
     suspend fun resetPartial()

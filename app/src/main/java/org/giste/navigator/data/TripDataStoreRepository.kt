@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import org.giste.navigator.model.Trip
 import org.giste.navigator.model.TripRepository
 import javax.inject.Inject
 
@@ -18,12 +19,13 @@ private const val TOTAL_MAX = 9999990
 class TripDataStoreRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) : TripRepository {
-    override fun getPartial(): Flow<Int> {
-        return dataStore.data.map { it[TRIP_PARTIAL] ?: 0 }
-    }
-
-    override fun getTotal(): Flow<Int> {
-        return dataStore.data.map { it[TRIP_TOTAL] ?: 0 }
+    override fun get(): Flow<Trip> {
+        return dataStore.data.map {
+            Trip(
+                partial = it[TRIP_PARTIAL] ?: 0,
+                total = it[TRIP_TOTAL] ?: 0,
+            )
+        }
     }
 
     override suspend fun incrementPartial() {

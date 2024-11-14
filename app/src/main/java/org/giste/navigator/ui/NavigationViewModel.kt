@@ -28,6 +28,7 @@ import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.RoadbookScroll
+import org.giste.navigator.model.Trip
 import org.giste.navigator.model.TripRepository
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -63,8 +64,7 @@ class NavigationViewModel @Inject constructor(
         val roadbookScroll = roadbookRepository.getScroll().first()
 
         return UiState(
-            partial = tripRepository.getPartial().first(),
-            total = tripRepository.getTotal().first(),
+            trip = tripRepository.get().first(),
             roadbookState = if (roadbookRepository.getRoadbookUri().first() == "") {
                 RoadbookState.NotLoaded
             } else {
@@ -77,15 +77,13 @@ class NavigationViewModel @Inject constructor(
 
     private fun collectUiState(): StateFlow<UiState> {
         return combine(
-            tripRepository.getPartial(),
-            tripRepository.getTotal(),
+            tripRepository.get(),
             roadbookRepository.getRoadbookUri(),
             roadbookRepository.getScroll(),
             _locationState,
-        ) { partial, total, roadbookUri, scroll, location ->
+        ) { trip, roadbookUri, scroll, location ->
             var newUiState = lastUiState
-            if (lastUiState.partial != partial) newUiState = newUiState.copy(partial = partial)
-            if (lastUiState.total != total) newUiState = newUiState.copy(total = total)
+            if (lastUiState.trip != trip) newUiState = newUiState.copy(trip = trip)
             if (lastRoadbookUri != roadbookUri) {
                 newUiState = newUiState.copy(
                     roadbookState = if (roadbookUri == "") {
@@ -207,8 +205,7 @@ class NavigationViewModel @Inject constructor(
     }
 
     data class UiState(
-        val partial: Int = 0,
-        val total: Int = 0,
+        val trip: Trip = Trip(),
         val roadbookState: RoadbookState = RoadbookState.NotLoaded,
         val pageIndex: Int = 0,
         val pageOffset: Int = 0,

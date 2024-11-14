@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.giste.navigator.R
+import org.giste.navigator.model.Trip
 import org.giste.navigator.ui.theme.NavigatorTheme
 
 @Preview(
@@ -28,7 +29,7 @@ import org.giste.navigator.ui.theme.NavigatorTheme
 fun NavigationLandscapePreview() {
     NavigatorTheme {
         NavigationLandscapeScreen(
-            state = NavigationViewModel.UiState(123456, 1234567),
+            state = NavigationViewModel.UiState(trip = Trip(123456, 1234567)),
             onEvent = {},
             pdfState = LazyListState()
         )
@@ -61,7 +62,7 @@ fun NavigationLandscapeScreen(
                     .fillMaxHeight()
             ) {
                 TripTotal(
-                    distance = "%,.2f".format(state.total.div(1000f)),
+                    distance = "%,.2f".format(state.trip.total.div(1000f)),
                     onClick = {},
                     modifier = Modifier
                         .weight(.9f)
@@ -69,7 +70,7 @@ fun NavigationLandscapeScreen(
                 )
                 HorizontalDivider()
                 TripPartial(
-                    distance = "%,.2f".format(state.partial.div(1000f)),
+                    distance = "%,.2f".format(state.trip.partial.div(1000f)),
                     onClick = { showPartialSettingDialog.value = true },
                     modifier = Modifier
                         .weight(1.2f)
@@ -102,7 +103,7 @@ fun NavigationLandscapeScreen(
         DistanceSettingDialog(
             showDialog = showPartialSettingDialog,
             title = stringResource(R.string.partial_label),
-            text = state.partial.div(10).toString(),
+            text = state.trip.partial.div(10).toString(),
             numberOfIntegerDigits = 3,
             numberOfDecimals = 2,
             onAccept = { onEvent(NavigationViewModel.UiAction.SetPartial(it)) }
@@ -113,7 +114,7 @@ fun NavigationLandscapeScreen(
         DistanceSettingDialog(
             showDialog = showTotalSettingDialog,
             title = stringResource(R.string.total_label),
-            text = state.total.div(10).toString(),
+            text = state.trip.total.div(10).toString(),
             numberOfIntegerDigits = 4,
             numberOfDecimals = 2,
             onAccept = { onEvent(NavigationViewModel.UiAction.SetTotal(it)) }
