@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -26,7 +25,6 @@ import kotlinx.coroutines.runBlocking
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
-import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.RoadbookScroll
@@ -34,7 +32,6 @@ import org.giste.navigator.model.Settings
 import org.giste.navigator.model.SettingsRepository
 import org.giste.navigator.model.Trip
 import org.giste.navigator.model.TripRepository
-import org.mapsforge.map.datastore.MapDataStore
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -45,7 +42,6 @@ class NavigationViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val roadbookRepository: RoadbookRepository,
     private val tripRepository: TripRepository,
-    private val mapRepository: MapRepository,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private var lastUiState: UiState = runBlocking { collectFirstState() }
@@ -55,9 +51,6 @@ class NavigationViewModel @Inject constructor(
     private val _locationState: MutableStateFlow<Location?> = MutableStateFlow(null)
 
     val uiState: StateFlow<UiState> = collectUiState()
-
-    private val _mapState: MutableStateFlow<MapDataStore?> = MutableStateFlow(null)
-    val mapState = _mapState.asStateFlow()
 
     val settingState: StateFlow<Settings> = settingsRepository.get().stateIn(
         scope = viewModelScope,
@@ -70,7 +63,6 @@ class NavigationViewModel @Inject constructor(
         if (initialized) return
 
         viewModelScope.launch {
-            _mapState.update { mapRepository.getMap() }
             startListenForLocations()
             initialized = true
             Log.d(CLASS_NAME, "Initialized: $initialized")

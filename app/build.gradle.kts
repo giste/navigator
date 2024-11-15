@@ -69,8 +69,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.hilt.android)
     implementation(libs.paging.compose)
-    implementation(libs.mapsforge.maps.android)
-    implementation(libs.mapsforge.themes)
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmdroid.compose)
 
     ksp(libs.hilt.compiler)
 

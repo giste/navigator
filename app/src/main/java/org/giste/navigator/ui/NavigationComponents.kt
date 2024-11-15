@@ -27,6 +27,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -37,25 +39,21 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
+import com.utsman.osmandcompose.DefaultMapProperties
+import com.utsman.osmandcompose.OpenStreetMap
+import com.utsman.osmandcompose.rememberCameraState
 import org.giste.navigator.R
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.Settings
-import org.mapsforge.core.model.LatLong
-import org.mapsforge.core.model.Rotation
-import org.mapsforge.map.android.graphics.AndroidGraphicFactory
-import org.mapsforge.map.android.util.AndroidUtil
-import org.mapsforge.map.android.view.MapView
-import org.mapsforge.map.datastore.MapDataStore
-import org.mapsforge.map.layer.renderer.TileRendererLayer
-import org.mapsforge.map.rendertheme.internal.MapsforgeThemes
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
 
 const val TRIP_PARTIAL = "TRIP_PARTIAL"
 const val INCREASE_PARTIAL = "INCREASE_PARTIAL"
@@ -102,69 +100,46 @@ fun TripPartial(
 
 @Composable
 fun Map(
-    map: MapDataStore?,
     location: Location?,
     modifier: Modifier = Modifier,
 ) {
     Log.d("Map", "Location: $location")
 
-    if (map == null) {
-        Text(
-            text = location?.toString() ?: "Map",
-            modifier = modifier
-                .fillMaxSize()
-                .wrapContentHeight(),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            style = if (location == null) {
-                MaterialTheme.typography.displayLarge
-            } else {
-                MaterialTheme.typography.labelMedium
-            },
-            textAlign = TextAlign.Center,
-        )
-    } else {
-        Surface(
-            modifier = modifier.fillMaxSize(),
-        ) {
-            AndroidView(
-                factory = { context ->
-                    MapView(context).apply {
-                        mapScaleBar.isVisible = false
-                        setBuiltInZoomControls(true)
-
-                        val tileCache = AndroidUtil.createTileCache(
-                            context, "mapcache",
-                            model.displayModel.tileSize, 1f,
-                            model.frameBufferModel.overdrawFactor
-                        )
-
-                        val tileRendererLayer = TileRendererLayer(
-                            tileCache,
-                            map,
-                            model.mapViewPosition,
-                            AndroidGraphicFactory.INSTANCE
-                        )
-                        tileRendererLayer.setXmlRenderTheme(MapsforgeThemes.MOTORIDER)
-
-                        layerManager.layers.add(tileRendererLayer)
-
-                        setCenter(LatLong(40.60092, -3.70806))
-                        setZoomLevel(19)
-                    }
-                },
-                modifier = modifier.fillMaxSize(),
-                update = { view ->
-                    view.apply {
-                        location?.let {
-                            setCenter(LatLong(it.latitude, it.longitude))
-                            rotate(Rotation(it.bearing, 0.0f, 0.0f))
-                        }
-                    }
-                }
-            )
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        // define camera state
+        val cameraState = rememberCameraState {
+            geoPoint = GeoPoint(location?.latitude ?: 40.60092, location?.longitude ?: -3.70806)
+            zoom = 19.0 // optional, default is 5.0
         }
-    }
 
+        val mapProperties = remember {
+            mutableStateOf(DefaultMapProperties)
+        }
+
+        // setup mapProperties in side effect
+        SideEffect {
+            mapProperties.value = mapProperties.value
+                .copy(tileSources = TileSourceFactory.MAPNIK)
+                .copy(isTilesScaledToDpi = true)
+        }
+
+        LaunchedEffect(location) {
+            Log.d("Map", "Geo point: $location")
+            location?.let {
+                cameraState.geoPoint = GeoPoint(it.latitude, it.longitude)
+            }
+        }
+
+        // add node
+        OpenStreetMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraState = cameraState,
+            properties = mapProperties.value,
+        )
+    }
 }
 
 @Composable
