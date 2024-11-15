@@ -1,6 +1,5 @@
 package org.giste.navigator.ui
 
-import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -25,20 +24,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.MultiplePermissionsState
 import org.giste.navigator.MainActivity
 import org.giste.navigator.R
 import kotlin.system.exitProcess
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ManagePermissions() {
-    val multiplePermission = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        )
-    )
+fun ManagePermissions(
+    multiplePermission: MultiplePermissionsState,
+) {
+//    val multiplePermission = rememberMultiplePermissionsState(
+//        permissions = listOf(
+//            Manifest.permission.ACCESS_COARSE_LOCATION,
+//            Manifest.permission.ACCESS_FINE_LOCATION,
+//        )
+//    )
     val context = LocalContext.current
     val showRationalDialog = remember { mutableStateOf(false) }
 

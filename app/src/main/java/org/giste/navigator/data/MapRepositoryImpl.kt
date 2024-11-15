@@ -74,7 +74,10 @@ class MapRepositoryImpl @Inject constructor(
 
         Log.d(CLASS_NAME, "Creating maps dir: ${mapsDir.path}")
 
-        if (!mapsDir.exists()) mapsDir.mkdirs()
+        //if (!mapsDir.exists()) mapsDir.mkdirs()
+        mapsDir.mkdirs()
+
+        Log.d(CLASS_NAME, "Maps dir exists: ${mapsDir.exists()}")
     }
 
     private fun getAllMaps(): List<MapDataStore> {
