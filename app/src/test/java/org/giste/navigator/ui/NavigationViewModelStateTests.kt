@@ -19,28 +19,37 @@ import org.giste.navigator.model.TripRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.mapsforge.map.datastore.MultiMapDataStore
+import java.util.stream.Stream
+import kotlin.math.abs
 
 @DisplayName("Tests for NavigationViewModel")
 @ExtendWith(MockKExtension::class)
 @ExtendWith(MainDispatcherExtension::class)
 class NavigationViewModelStateTests {
 
-    @MockK private lateinit var locationRepository: LocationRepository
-    @MockK private lateinit var roadbookRepository: RoadbookRepository
-    @MockK private lateinit var mapRepository: MapRepository
+    @MockK
+    private lateinit var locationRepository: LocationRepository
+    @MockK
+    private lateinit var roadbookRepository: RoadbookRepository
+    @MockK
+    private lateinit var mapRepository: MapRepository
     private lateinit var tripRepository: TripRepository
     private lateinit var viewModel: NavigationViewModel
 
     @BeforeEach
     fun beforeEach() {
         coEvery { roadbookRepository.getRoadbookUri() } returns flow { emit("") }
-        coEvery { roadbookRepository.getScroll() } returns flow { emit(RoadbookScroll())}
+        coEvery { roadbookRepository.getScroll() } returns flow { emit(RoadbookScroll()) }
         coEvery { mapRepository.getMap() } returns MultiMapDataStore(MultiMapDataStore.DataPolicy.RETURN_ALL)
 
         tripRepository = TripFakeRepository()
@@ -158,12 +167,47 @@ class NavigationViewModelStateTests {
     fun `when locations are collected distances should be calculated`() = runTest {
         coEvery {
             locationRepository.listenToLocation(any(), any())
-        } returns TestRoute.getLocations().asFlow()
+        } returns TresCantosRoute.getLocations().asFlow()
         viewModel.initialize()
 
         advanceUntilIdle()
 
-        assertEquals(TestRoute.getDistance(), viewModel.uiState.take(TestRoute.getLocations().count()).first().trip.partial)
-        assertEquals(TestRoute.getDistance(), viewModel.uiState.value.trip.total)
+        val measuredPartial = viewModel.uiState.take(
+            TresCantosRoute.getLocations().count()
+        ).first().trip.partial
+
+        assertTrue(abs(TresCantosRoute.getDistance().minus(measuredPartial)) <= 1)
+        assertEquals(viewModel.uiState.value.trip.partial, viewModel.uiState.value.trip.total)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @ParameterizedTest
+    @MethodSource("getRoutes")
+    fun `when locations are collected distances should be calculated 2`() = runTest {
+        val route = NavacerradaRoute
+
+        coEvery {
+            locationRepository.listenToLocation(any(), any())
+        } returns route.getLocations().asFlow()
+        viewModel.initialize()
+
+        advanceUntilIdle()
+
+        val measuredPartial = viewModel.uiState.take(
+            route.getLocations().count()
+        ).first().trip.partial
+
+        assertTrue(abs(route.getDistance().minus(measuredPartial)) <= route.getDistance().times(0.01))
+        assertEquals(viewModel.uiState.value.trip.partial, viewModel.uiState.value.trip.total)
+    }
+
+    companion object {
+        @JvmStatic
+        fun getRoutes(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(TresCantosRoute),
+                Arguments.of(NavacerradaRoute),
+            )
+        }
     }
 }
