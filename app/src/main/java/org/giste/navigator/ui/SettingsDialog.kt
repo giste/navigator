@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import org.giste.navigator.model.Settings
 import org.giste.navigator.ui.theme.NavigatorTheme
 
 @Preview(
@@ -59,9 +60,7 @@ fun SettingsDialogPreview() {
 
             SettingsDialogScreen(
                 showDialog = showDialog,
-                locationMinTime = 1_000L,
-                locationMinDistance = 10,
-                distanceUseAltitude = true,
+                settings = Settings(),
                 onAccept = {},
             )
         }
@@ -71,16 +70,14 @@ fun SettingsDialogPreview() {
 @Composable
 fun SettingsDialogScreen(
     showDialog: MutableState<Boolean>,
-    locationMinTime: Long,
-    locationMinDistance: Int,
-    distanceUseAltitude: Boolean,
-    onAccept: () -> Unit,
+    settings: Settings,
+    onAccept: (Settings) -> Unit,
     width: Dp = 600.dp,
     height: Dp = 400.dp,
 ) {
-    val minTime = remember { mutableLongStateOf(locationMinTime) }
-    val minDistance = remember { mutableIntStateOf(locationMinDistance) }
-    val useAltitude = remember { mutableStateOf(distanceUseAltitude) }
+    val minTime = remember { mutableLongStateOf(settings.locationMinTime) }
+    val minDistance = remember { mutableIntStateOf(settings.locationMinDistance) }
+    val useAltitude = remember { mutableStateOf(settings.distanceUseAltitude) }
 
     Dialog(
         onDismissRequest = { showDialog.value = false },
@@ -138,7 +135,16 @@ fun SettingsDialogScreen(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .clickable(role = Role.Button) { onAccept() }
+                        .clickable(role = Role.Button) {
+                            onAccept(
+                                Settings(
+                                    locationMinTime = minTime.longValue,
+                                    locationMinDistance = minDistance.intValue,
+                                    distanceUseAltitude = useAltitude.value
+                                )
+                            )
+                            showDialog.value = false
+                        }
                         .background(color = MaterialTheme.colorScheme.primary),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally

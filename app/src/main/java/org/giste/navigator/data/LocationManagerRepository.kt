@@ -6,23 +6,27 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
+import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
+import org.giste.navigator.model.Settings
+import org.giste.navigator.model.SettingsRepository
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+private const val CLASS_NAME = "LocationManagerRepository"
+
 class LocationManagerRepository @Inject constructor(
-    @ApplicationContext val context: Context,
+    private val context: Context,
+    private val settingsRepository: SettingsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : LocationRepository {
     private val locationManager by lazy {
@@ -35,6 +39,8 @@ class LocationManagerRepository @Inject constructor(
             if (!hasLocationPermission()) throw LocationPermissionException()
             val locationCallback = LocationListener { location ->
                 location.let {
+                    Log.v(CLASS_NAME, "Location: $location")
+
                     launch(dispatcher) {
                         send(
                             Location(
@@ -49,10 +55,12 @@ class LocationManagerRepository @Inject constructor(
                 }
             }
 
+            val settings: Settings = settingsRepository.get().first()
+
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                minTime,
-                minDistance,
+                settings.locationMinTime,
+                settings.locationMinDistance.toFloat(),
                 locationCallback
             )
 
@@ -63,7 +71,7 @@ class LocationManagerRepository @Inject constructor(
         }
     }
 
-    override fun hasLocationPermission(): Boolean {
+    private fun hasLocationPermission(): Boolean {
         return context.checkSelfPermission(
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED && context.checkSelfPermission(

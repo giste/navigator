@@ -27,6 +27,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,6 +47,7 @@ import coil3.compose.AsyncImage
 import org.giste.navigator.R
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.PdfPage
+import org.giste.navigator.model.Settings
 import org.mapsforge.core.model.LatLong
 import org.mapsforge.core.model.Rotation
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory
@@ -266,9 +269,12 @@ private fun RoadbookPage(
 
 @Composable
 fun CommandBar(
+    settings: Settings,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val showSettingsDialog = remember { mutableStateOf(false) }
+
     val selectRoadbookLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
@@ -322,12 +328,21 @@ fun CommandBar(
             modifier = Modifier.weight(1f)
         )
         CommandBarButton(
-            onClick = {},
+            onClick = { showSettingsDialog.value = true },
             icon = Icons.Default.Settings,
             contentDescription = stringResource(R.string.settings_description),
             modifier = Modifier.weight(1f)
         )
     }
+
+    if (showSettingsDialog.value) {
+        SettingsDialogScreen(
+            showDialog = showSettingsDialog,
+            settings = settings,
+            onAccept = { onEvent(NavigationViewModel.UiAction.SetSettings(it)) }
+        )
+    }
+
 }
 
 @Composable

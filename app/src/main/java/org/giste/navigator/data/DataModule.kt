@@ -15,6 +15,7 @@ import dagger.hilt.components.SingletonComponent
 import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.RoadbookRepository
+import org.giste.navigator.model.SettingsRepository
 import org.giste.navigator.model.TripRepository
 import javax.inject.Singleton
 
@@ -23,8 +24,11 @@ import javax.inject.Singleton
 class DataModule {
     @Provides
     @Singleton
-    fun provideLocationRepository(@ApplicationContext appContext: Context): LocationRepository =
-        LocationManagerRepository(appContext)
+    fun provideLocationRepository(
+        @ApplicationContext appContext: Context,
+        settingsRepository: SettingsRepository,
+    ): LocationRepository =
+        LocationManagerRepository(appContext, settingsRepository)
 
     @Provides
     @Singleton
@@ -55,5 +59,11 @@ class DataModule {
     @Provides
     fun provideMapRepository(@ApplicationContext context: Context): MapRepository {
         return MapRepositoryImpl(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSettingsRepository(stateDataStore: DataStore<Preferences>): SettingsRepository {
+        return SettingsDataStoreRepository(stateDataStore)
     }
 }

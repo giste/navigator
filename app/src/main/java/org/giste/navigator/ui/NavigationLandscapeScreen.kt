@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.giste.navigator.R
+import org.giste.navigator.model.Settings
 import org.giste.navigator.model.Trip
 import org.giste.navigator.ui.theme.NavigatorTheme
 import org.mapsforge.map.datastore.MapDataStore
@@ -34,6 +35,7 @@ fun NavigationLandscapePreview() {
             onEvent = {},
             pdfState = LazyListState(),
             map = null,
+            settings = Settings(),
         )
     }
 }
@@ -44,6 +46,7 @@ fun NavigationLandscapeScreen(
     onEvent: (NavigationViewModel.UiAction) -> Unit,
     pdfState: LazyListState,
     map: MapDataStore?,
+    settings: Settings,
     modifier: Modifier = Modifier,
 ) {
     val padding = 4.dp
@@ -98,6 +101,7 @@ fun NavigationLandscapeScreen(
             )
         }
         CommandBar(
+            settings = settings,
             onEvent = onEvent,
             modifier = Modifier.weight(1f)
         )
@@ -124,4 +128,5 @@ fun NavigationLandscapeScreen(
             onAccept = { onEvent(NavigationViewModel.UiAction.SetTotal(it)) }
         )
     }
+
 }

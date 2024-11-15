@@ -18,13 +18,14 @@ class MapRepositoryImpl @Inject constructor(
 ) : MapRepository {
     companion object {
         val MAP_LIST = listOf(
-            "madrid.map",
-            "castilla-la-mancha.map",
+            "spain.map",
+//            "madrid.map",
+//            "castilla-la-mancha.map",
         )
     }
 
     override suspend fun getMap(): MapDataStore {
-        val maps = MultiMapDataStore(MultiMapDataStore.DataPolicy.RETURN_FIRST)
+        val maps = MultiMapDataStore(MultiMapDataStore.DataPolicy.RETURN_ALL)
         getAllMaps().forEach { maps.addMapDataStore(it, false, false) }
 
         return maps

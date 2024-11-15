@@ -15,6 +15,8 @@ import org.giste.navigator.model.LocationRepository
 import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.RoadbookScroll
+import org.giste.navigator.model.Settings
+import org.giste.navigator.model.SettingsRepository
 import org.giste.navigator.model.TripRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -43,6 +45,8 @@ class NavigationViewModelStateTests {
     private lateinit var roadbookRepository: RoadbookRepository
     @MockK
     private lateinit var mapRepository: MapRepository
+    @MockK
+    private lateinit var settingRepository: SettingsRepository
     private lateinit var tripRepository: TripRepository
     private lateinit var viewModel: NavigationViewModel
 
@@ -51,6 +55,7 @@ class NavigationViewModelStateTests {
         coEvery { roadbookRepository.getRoadbookUri() } returns flow { emit("") }
         coEvery { roadbookRepository.getScroll() } returns flow { emit(RoadbookScroll()) }
         coEvery { mapRepository.getMap() } returns MultiMapDataStore(MultiMapDataStore.DataPolicy.RETURN_ALL)
+        coEvery { settingRepository.get() } returns flow { emit(Settings()) }
 
         tripRepository = TripFakeRepository()
         viewModel = NavigationViewModel(
@@ -58,6 +63,7 @@ class NavigationViewModelStateTests {
             roadbookRepository,
             tripRepository,
             mapRepository,
+            settingRepository,
         )
     }
 

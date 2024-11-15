@@ -30,6 +30,8 @@ import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.RoadbookScroll
+import org.giste.navigator.model.Settings
+import org.giste.navigator.model.SettingsRepository
 import org.giste.navigator.model.Trip
 import org.giste.navigator.model.TripRepository
 import org.mapsforge.map.datastore.MapDataStore
@@ -44,6 +46,7 @@ class NavigationViewModel @Inject constructor(
     private val roadbookRepository: RoadbookRepository,
     private val tripRepository: TripRepository,
     private val mapRepository: MapRepository,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private var lastUiState: UiState = runBlocking { collectFirstState() }
     var initialized by mutableStateOf(false)
@@ -55,6 +58,12 @@ class NavigationViewModel @Inject constructor(
 
     private val _mapState: MutableStateFlow<MapDataStore?> = MutableStateFlow(null)
     val mapState = _mapState.asStateFlow()
+
+    val settingState: StateFlow<Settings> = settingsRepository.get().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = Settings()
+    )
 
     fun initialize() {
         Log.d(CLASS_NAME, "Entering initialize()")
@@ -188,6 +197,12 @@ class NavigationViewModel @Inject constructor(
         }
     }
 
+    private fun setSettings(settings: Settings) {
+        viewModelScope.launch {
+            settingsRepository.save(settings)
+        }
+    }
+
     sealed class UiAction {
         data object DecreasePartial : UiAction()
         data object ResetPartial : UiAction()
@@ -197,6 +212,7 @@ class NavigationViewModel @Inject constructor(
         data class SetTotal(val total: String) : UiAction()
         data class SetUri(val uri: Uri) : UiAction()
         data class SetScroll(val pageIndex: Int, val pageOffset: Int) : UiAction()
+        data class SetSettings(val settings: Settings) : UiAction()
     }
 
     fun onAction(event: UiAction) {
@@ -209,6 +225,7 @@ class NavigationViewModel @Inject constructor(
             is UiAction.SetTotal -> setTotal(event.total)
             is UiAction.SetUri -> setRoadbookUri(event.uri)
             is UiAction.SetScroll -> setScroll(event.pageIndex, event.pageOffset)
+            is UiAction.SetSettings -> setSettings(event.settings)
         }
     }
 
