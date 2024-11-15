@@ -5,7 +5,7 @@ agpVersion = "8.6.1"
 androidTestExtensions = "1.6.0"
 androidxJunitVersion = "1.2.1"
 coilVersion = "3.0.2"
-composeBomVersion = "2024.10.01"
+composeBomVersion = "2024.11.00"
 coreKtxVersion = "1.15.0"
 datastoreVersion = "1.1.1"
 espressoCoreVersion = "3.6.1"
@@ -19,7 +19,7 @@ kspVersion = "2.0.20-1.0.24"
 lifecycleRuntimeKtxVersion = "2.8.7"
 mapsforgeVersion = "0.22.0"
 mockkVersion = "1.13.13"
-pagingComposeVersion = "3.3.2"
+pagingComposeVersion = "3.3.4"
 
 [libraries]
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistVersion" }
