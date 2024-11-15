@@ -69,10 +69,13 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.hilt.android)
     implementation(libs.paging.compose)
+    implementation(libs.mapsforge.maps.android)
+    implementation(libs.mapsforge.themes)
 
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.junit.jupiter.engine)
 
     testImplementation(libs.kotlinx.coroutines.test)
