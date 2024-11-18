@@ -13,6 +13,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.giste.navigator.model.LocationRepository
+import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.SettingsRepository
 import org.giste.navigator.model.TripRepository
@@ -52,6 +53,12 @@ class DataModule {
     @Provides
     fun provideTripRepository(stateDataStore: DataStore<Preferences>): TripRepository {
         return TripDataStoreRepository(stateDataStore)
+    }
+
+    @Singleton
+    @Provides
+    fun provideMapRepository(@ApplicationContext context: Context): MapRepository {
+        return MapRepositoryImpl(context)
     }
 
     @Singleton
