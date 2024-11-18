@@ -27,17 +27,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -126,45 +130,58 @@ fun Map(
         Surface(
             modifier = modifier.fillMaxSize(),
         ) {
-            AndroidView(
-                factory = { context ->
-                    MapView(context).apply {
-                        mapScaleBar.isVisible = false
-                        setBuiltInZoomControls(true)
-
-                        val tileCache = AndroidUtil.createTileCache(
-                            context, "mapcache",
-                            model.displayModel.tileSize, 1f,
-                            model.frameBufferModel.overdrawFactor
-                        )
-
-                        val tileRendererLayer = TileRendererLayer(
-                            tileCache,
-                            map,
-                            model.mapViewPosition,
-                            AndroidGraphicFactory.INSTANCE
-                        )
-                        tileRendererLayer.setXmlRenderTheme(MapsforgeThemes.MOTORIDER)
-
-                        layerManager.layers.add(tileRendererLayer)
-
-                        setCenter(LatLong(40.60092, -3.70806))
-                        setZoomLevel(19)
-                    }
-                },
-                modifier = modifier.fillMaxSize(),
-                update = { view ->
-                    view.apply {
-                        location?.let {
-                            setCenter(LatLong(it.latitude, it.longitude))
-                            rotate(Rotation(it.bearing, 0.0f, 0.0f))
-                        }
-                    }
-                }
+            MapsforgeMapView(
+                map = map,
+                location = location,
+                modifier = modifier,
             )
         }
     }
+}
 
+@Composable
+fun MapsforgeMapView(
+    map: MapDataStore?,
+    location: Location?,
+    modifier: Modifier = Modifier,
+) {
+    val mapView = rememberMapViewWithLifecycle()
+    with(mapView) {
+        mapScaleBar.isVisible = false
+        setBuiltInZoomControls(true)
+
+        val tileCache = AndroidUtil.createTileCache(
+            context, "mapcache",
+            model.displayModel.tileSize, 1f,
+            model.frameBufferModel.overdrawFactor
+        )
+
+        val tileRendererLayer = TileRendererLayer(
+            tileCache,
+            map,
+            model.mapViewPosition,
+            AndroidGraphicFactory.INSTANCE
+        )
+        tileRendererLayer.setXmlRenderTheme(MapsforgeThemes.MOTORIDER)
+
+        layerManager.layers.add(tileRendererLayer)
+
+        setCenter(LatLong(40.60092, -3.70806))
+        setZoomLevel(19)
+    }
+
+    AndroidView(
+        factory = { mapView },
+        modifier = modifier.fillMaxSize(),
+        update = { view ->
+            view.apply {
+                location?.let {
+                    setCenter(LatLong(it.latitude, it.longitude))
+                    rotate(Rotation(it.bearing, 0.0f, 0.0f))
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -363,4 +380,21 @@ fun CommandBarButton(
             tint = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Composable
+private fun rememberMapViewWithLifecycle(): MapView {
+    val context = LocalContext.current
+    val mapView = remember { MapView(context) }
+    val observer = remember { MapsforgeMapViewLifecycleObserver(mapView) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    DisposableEffect(Unit) {
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+        }
+    }
+
+    return mapView
 }
