@@ -2,6 +2,7 @@
 accompanistVersion = "0.36.0"
 activityComposeVersion = "1.9.3"
 agpVersion = "8.6.1"
+androidSvgVersion = "1.4"
 androidTestExtensions = "1.6.0"
 androidxJunitVersion = "1.2.1"
 coilVersion = "3.0.2"
@@ -23,6 +24,7 @@ pagingComposeVersion = "3.3.4"
 
 [libraries]
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistVersion" }
+android-svg = { group = "com.caverock", name = "androidsvg", version.ref = "androidSvgVersion" }
 android-test-extensions = { group = "de.mannodermaus.junit5", name = "android-test-extensions", version.ref = "androidTestExtensions" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityComposeVersion" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBomVersion" }
