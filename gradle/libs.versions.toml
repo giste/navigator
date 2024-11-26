@@ -1,7 +1,7 @@
 [versions]
 accompanistVersion = "0.36.0"
 activityComposeVersion = "1.9.3"
-agpVersion = "8.6.1"
+agpVersion = "8.7.2"
 androidSvgVersion = "1.4"
 androidTestExtensions = "1.6.0"
 androidxJunitVersion = "1.2.1"
