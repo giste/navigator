@@ -15,16 +15,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.giste.navigator.ui.ManagePermissions
 import org.giste.navigator.ui.NavigationScreen
 import org.giste.navigator.ui.theme.NavigatorTheme
-import org.mapsforge.map.android.graphics.AndroidGraphicFactory
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize Mapsforge
-        AndroidGraphicFactory.createInstance(application)
 
         enableEdgeToEdge()
         setContent {

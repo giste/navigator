@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.giste.navigator.model.LocationRepository
-import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.RoadbookScroll
 import org.giste.navigator.model.Settings
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import org.mapsforge.map.datastore.MultiMapDataStore
 import java.util.stream.Stream
 import kotlin.math.abs
 
@@ -44,8 +42,6 @@ class NavigationViewModelStateTests {
     @MockK
     private lateinit var roadbookRepository: RoadbookRepository
     @MockK
-    private lateinit var mapRepository: MapRepository
-    @MockK
     private lateinit var settingRepository: SettingsRepository
     private lateinit var tripRepository: TripRepository
     private lateinit var viewModel: NavigationViewModel
@@ -54,7 +50,6 @@ class NavigationViewModelStateTests {
     fun beforeEach() {
         coEvery { roadbookRepository.getRoadbookUri() } returns flow { emit("") }
         coEvery { roadbookRepository.getScroll() } returns flow { emit(RoadbookScroll()) }
-        coEvery { mapRepository.getMap() } returns MultiMapDataStore(MultiMapDataStore.DataPolicy.RETURN_ALL)
         coEvery { settingRepository.get() } returns flow { emit(Settings()) }
 
         tripRepository = TripFakeRepository()
@@ -62,7 +57,6 @@ class NavigationViewModelStateTests {
             locationRepository,
             roadbookRepository,
             tripRepository,
-            mapRepository,
             settingRepository,
         )
     }
