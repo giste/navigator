@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -25,6 +26,7 @@ import kotlinx.coroutines.runBlocking
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.LocationPermissionException
 import org.giste.navigator.model.LocationRepository
+import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.RoadbookScroll
@@ -43,12 +45,16 @@ class NavigationViewModel @Inject constructor(
     private val roadbookRepository: RoadbookRepository,
     private val tripRepository: TripRepository,
     private val settingsRepository: SettingsRepository,
+    private val mapRepository: MapRepository,
 ) : ViewModel() {
     private var lastUiState: UiState = runBlocking { collectFirstState() }
     var initialized by mutableStateOf(false)
         private set
     private var lastRoadbookUri = ""
     private val _locationState: MutableStateFlow<Location?> = MutableStateFlow(null)
+
+    private val _maps: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    val maps = _maps.asStateFlow()
 
     val uiState: StateFlow<UiState> = collectUiState()
 
@@ -64,6 +70,7 @@ class NavigationViewModel @Inject constructor(
 
         viewModelScope.launch {
             startListenForLocations()
+            _maps.update { mapRepository.getMaps() }
             initialized = true
             Log.d(CLASS_NAME, "Initialized: $initialized")
         }
@@ -90,7 +97,7 @@ class NavigationViewModel @Inject constructor(
             roadbookRepository.getRoadbookUri(),
             roadbookRepository.getScroll(),
             _locationState,
-        ) { trip, roadbookUri, scroll, location ->
+        ) { trip, roadbookUri, scroll, location->
             var newUiState = lastUiState
             if (lastUiState.trip != trip) newUiState = newUiState.copy(trip = trip)
             if (lastRoadbookUri != roadbookUri) {

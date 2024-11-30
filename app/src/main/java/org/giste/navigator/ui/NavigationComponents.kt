@@ -64,7 +64,7 @@ import org.oscim.scalebar.MapScaleBar
 import org.oscim.scalebar.MapScaleBarLayer
 import org.oscim.theme.internal.VtmThemes
 import org.oscim.tiling.source.mapfile.MapFileTileSource
-import java.io.File
+import org.oscim.tiling.source.mapfile.MultiMapFileTileSource
 
 const val TRIP_PARTIAL = "TRIP_PARTIAL"
 const val INCREASE_PARTIAL = "INCREASE_PARTIAL"
@@ -136,7 +136,7 @@ fun Map(
             modifier = modifier.fillMaxSize(),
         ) {
             VtmMapView(
-                map = map,
+                maps = map,
                 location = location,
                 modifier = modifier,
             )
@@ -146,15 +146,11 @@ fun Map(
 
 @Composable
 fun VtmMapView(
-    map: List<String>,
+    maps: List<String>,
     location: Location?,
     modifier: Modifier = Modifier
 ) {
     val mapView = rememberMapViewWithLifecycle()
-
-    val filesDir = LocalContext.current.filesDir
-    val mapsDir = File(filesDir, "maps")
-    val mapFile = File(mapsDir, map[0])
 
     AndroidView(
         factory = {
@@ -166,9 +162,15 @@ fun VtmMapView(
                 mapScaleBarLayer.renderer.setOffset(5 * CanvasAdapter.getScale(), 0f)
                 mapView.map().layers().add(mapScaleBarLayer)
 
-                val tileSource = MapFileTileSource()
+                // Til source from maps
+                val tileSource = MultiMapFileTileSource()
+                maps.forEach {
+                    val map = MapFileTileSource()
+                    map.setMapFile(it)
+                    val result = tileSource.add(map)
 
-                tileSource.setMapFile(mapFile.path)
+                    Log.d("VtmMapView", "Added map: $it with result: $result")
+                }
 
                 // Vector layer
                 val tileLayer: VectorTileLayer = mapView.map().setBaseMap(tileSource)
@@ -182,12 +184,12 @@ fun VtmMapView(
                 // Render theme
                 setTheme(VtmThemes.DEFAULT)
 
+                // Initial position, scale and tilt
                 val mapPosition = this.mapPosition
                 mapPosition
                     .setPosition(40.60092, -3.70806)
                     .setScale((1 shl 19).toDouble())
                     .setTilt(60.0f)
-
                 setMapPosition(mapPosition)
                 Log.d("VtmMapView", "Initial map position: ${this.mapPosition}")
             }

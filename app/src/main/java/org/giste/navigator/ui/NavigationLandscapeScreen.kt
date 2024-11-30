@@ -33,8 +33,8 @@ fun NavigationLandscapePreview() {
             state = NavigationViewModel.UiState(trip = Trip(123456, 1234567)),
             onEvent = {},
             pdfState = LazyListState(),
-            map = listOf(),
             settings = Settings(),
+            maps = listOf(),
         )
     }
 }
@@ -44,8 +44,8 @@ fun NavigationLandscapeScreen(
     state: NavigationViewModel.UiState,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
     pdfState: LazyListState,
-    map: List<String>,
     settings: Settings,
+    maps: List<String>,
     modifier: Modifier = Modifier,
 ) {
     val padding = 4.dp
@@ -84,7 +84,7 @@ fun NavigationLandscapeScreen(
                 HorizontalDivider()
                 Map(
                     location = state.location,
-                    map = map,
+                    map = maps,
                     modifier = Modifier
                         .weight(5f)
                         .padding(padding),

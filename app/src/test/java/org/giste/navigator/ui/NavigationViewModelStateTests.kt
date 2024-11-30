@@ -2,6 +2,7 @@ package org.giste.navigator.ui
 
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.giste.navigator.model.LocationRepository
+import org.giste.navigator.model.MapRepository
 import org.giste.navigator.model.RoadbookRepository
 import org.giste.navigator.model.RoadbookScroll
 import org.giste.navigator.model.Settings
@@ -43,6 +45,9 @@ class NavigationViewModelStateTests {
     private lateinit var roadbookRepository: RoadbookRepository
     @MockK
     private lateinit var settingRepository: SettingsRepository
+    @MockK
+    private lateinit var mapRepository: MapRepository
+
     private lateinit var tripRepository: TripRepository
     private lateinit var viewModel: NavigationViewModel
 
@@ -51,6 +56,7 @@ class NavigationViewModelStateTests {
         coEvery { roadbookRepository.getRoadbookUri() } returns flow { emit("") }
         coEvery { roadbookRepository.getScroll() } returns flow { emit(RoadbookScroll()) }
         coEvery { settingRepository.get() } returns flow { emit(Settings()) }
+        every { mapRepository.getMaps() } returns listOf()
 
         tripRepository = TripFakeRepository()
         viewModel = NavigationViewModel(
@@ -58,6 +64,7 @@ class NavigationViewModelStateTests {
             roadbookRepository,
             tripRepository,
             settingRepository,
+            mapRepository,
         )
     }
 

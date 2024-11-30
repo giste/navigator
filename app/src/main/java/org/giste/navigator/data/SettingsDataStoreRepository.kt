@@ -28,7 +28,7 @@ class SettingsDataStoreRepository @Inject constructor(
             Settings(
                 locationMinTime = it[LOCATION_MIN_TIME] ?: 1_000L,
                 locationMinDistance = it[LOCATION_MIN_DISTANCE] ?: 10,
-                distanceUseAltitude = it[DISTANCE_USE_ALTITUDE] ?: true
+                distanceUseAltitude = it[DISTANCE_USE_ALTITUDE] != false
             )
         }
     }
