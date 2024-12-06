@@ -19,7 +19,7 @@ class MapLocalRepository @Inject constructor(
 ) : MapRepository {
     companion object {
         val MAP_LIST = listOf(
-            "spain.map",
+            "madrid.map",
         )
     }
 
