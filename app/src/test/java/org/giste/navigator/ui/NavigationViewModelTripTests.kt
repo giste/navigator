@@ -37,7 +37,7 @@ import kotlin.math.abs
 @DisplayName("Tests for NavigationViewModel")
 @ExtendWith(MockKExtension::class)
 @ExtendWith(MainDispatcherExtension::class)
-class NavigationViewModelStateTests {
+class NavigationViewModelTripTests {
 
     @MockK
     private lateinit var locationRepository: LocationRepository
