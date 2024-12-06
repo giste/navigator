@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "org.giste.navigator"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.giste.navigator"
