@@ -1,7 +1,5 @@
 package org.giste.navigator.model
 
-import org.mapsforge.map.datastore.MapDataStore
-
 interface MapRepository {
-    suspend fun getMap(): MapDataStore
+    fun getMaps(): List<String>
 }

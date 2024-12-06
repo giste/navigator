@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "org.giste.navigator"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.giste.navigator"
@@ -70,8 +70,12 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.hilt.android)
     implementation(libs.paging.compose)
-    implementation(libs.mapsforge.maps.android)
-    implementation(libs.mapsforge.themes)
+    implementation(libs.slf4j)
+    implementation(libs.vtm)
+    implementation(libs.vtm.themes)
+    implementation(libs.vtm.android)
+
+    runtimeOnly("com.github.mapsforge.vtm:vtm-android:0.22.0:natives-arm64-v8a")
 
     ksp(libs.hilt.compiler)
 

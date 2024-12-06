@@ -2,31 +2,41 @@ package org.giste.navigator.data
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.giste.navigator.model.MapRepository
-import org.mapsforge.map.datastore.MapDataStore
-import org.mapsforge.map.datastore.MultiMapDataStore
-import org.mapsforge.map.reader.MapFile
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
-private const val CLASS_NAME = "MapRepositoryImpl"
+private const val CLASS_NAME = "MapLocalRepository"
 private const val MAPS_DIR = "maps"
+private const val MAP_EXTENSION = "map"
 
-class MapRepositoryImpl @Inject constructor(
+class MapLocalRepository @Inject constructor(
     private val context: Context,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MapRepository {
     companion object {
         val MAP_LIST = listOf(
-            "spain.map",
-//            "madrid.map",
-//            "castilla-la-mancha.map",
+            "madrid.map",
         )
     }
 
-    override suspend fun getMap(): MapDataStore {
-        val maps = MultiMapDataStore(MultiMapDataStore.DataPolicy.RETURN_ALL)
-        getAllMaps().forEach { maps.addMapDataStore(it, false, false) }
+    override fun getMaps(): List<String> {
+        val maps = mutableListOf<String>()
+        val mapsDir = File(context.filesDir, MAPS_DIR)
+
+        copyMaps()
+
+        mapsDir.walkTopDown().forEach {
+            Log.d(CLASS_NAME, "Evaluating file: ${it.path}")
+            if (it.isFile && it.extension == MAP_EXTENSION) {
+                maps.add(it.path)
+            }
+        }
+
+        Log.d(CLASS_NAME, "getMaps() = $maps")
 
         return maps
     }
@@ -81,17 +91,4 @@ class MapRepositoryImpl @Inject constructor(
         Log.d(CLASS_NAME, "Maps dir exists: ${mapsDir.exists()}")
     }
 
-    private fun getAllMaps(): List<MapDataStore> {
-        val maps: MutableList<MapDataStore> = mutableListOf()
-        val filesDir = context.filesDir
-        val mapsDir = File(filesDir, MAPS_DIR)
-
-        copyMaps()
-        MAP_LIST.forEach {
-            val file = File(mapsDir, it)
-            maps.add(MapFile(file))
-        }
-
-        return maps
-    }
 }

@@ -40,6 +40,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -51,14 +53,18 @@ import org.giste.navigator.R
 import org.giste.navigator.model.Location
 import org.giste.navigator.model.PdfPage
 import org.giste.navigator.model.Settings
-import org.mapsforge.core.model.LatLong
-import org.mapsforge.core.model.Rotation
-import org.mapsforge.map.android.graphics.AndroidGraphicFactory
-import org.mapsforge.map.android.util.AndroidUtil
-import org.mapsforge.map.android.view.MapView
-import org.mapsforge.map.datastore.MapDataStore
-import org.mapsforge.map.layer.renderer.TileRendererLayer
-import org.mapsforge.map.rendertheme.internal.MapsforgeThemes
+import org.oscim.android.MapView
+import org.oscim.backend.CanvasAdapter
+import org.oscim.layers.tile.buildings.BuildingLayer
+import org.oscim.layers.tile.vector.VectorTileLayer
+import org.oscim.layers.tile.vector.labeling.LabelLayer
+import org.oscim.renderer.GLViewport
+import org.oscim.scalebar.DefaultMapScaleBar
+import org.oscim.scalebar.MapScaleBar
+import org.oscim.scalebar.MapScaleBarLayer
+import org.oscim.theme.internal.VtmThemes
+import org.oscim.tiling.source.mapfile.MapFileTileSource
+import org.oscim.tiling.source.mapfile.MultiMapFileTileSource
 
 const val TRIP_PARTIAL = "TRIP_PARTIAL"
 const val INCREASE_PARTIAL = "INCREASE_PARTIAL"
@@ -105,13 +111,13 @@ fun TripPartial(
 
 @Composable
 fun Map(
-    map: MapDataStore?,
+    map: List<String>,
     location: Location?,
     modifier: Modifier = Modifier,
 ) {
     Log.d("Map", "Location: $location")
 
-    if (map == null) {
+    if (map.isEmpty()) {
         Text(
             text = location?.toString() ?: "Map",
             modifier = modifier
@@ -129,8 +135,8 @@ fun Map(
         Surface(
             modifier = modifier.fillMaxSize(),
         ) {
-            MapsforgeMapView(
-                map = map,
+            VtmMapView(
+                maps = map,
                 location = location,
                 modifier = modifier,
             )
@@ -139,48 +145,104 @@ fun Map(
 }
 
 @Composable
-fun MapsforgeMapView(
-    map: MapDataStore?,
+fun VtmMapView(
+    maps: List<String>,
     location: Location?,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val mapView = rememberMapViewWithLifecycle()
-    with(mapView) {
-        mapScaleBar.isVisible = false
-        setBuiltInZoomControls(true)
-
-        val tileCache = AndroidUtil.createTileCache(
-            context, "mapcache",
-            model.displayModel.tileSize, 1f,
-            model.frameBufferModel.overdrawFactor
-        )
-
-        val tileRendererLayer = TileRendererLayer(
-            tileCache,
-            map,
-            model.mapViewPosition,
-            AndroidGraphicFactory.INSTANCE
-        )
-        tileRendererLayer.setXmlRenderTheme(MapsforgeThemes.MOTORIDER)
-
-        layerManager.layers.add(tileRendererLayer)
-
-        setCenter(LatLong(40.60092, -3.70806))
-        setZoomLevel(19)
-    }
 
     AndroidView(
-        factory = { mapView },
-        modifier = modifier.fillMaxSize(),
-        update = { view ->
-            view.apply {
-                location?.let {
-                    setCenter(LatLong(it.latitude, it.longitude))
-                    rotate(Rotation(it.bearing, 0.0f, 0.0f))
+        factory = {
+            with(mapView.map()) {
+                // Scale bar
+                val mapScaleBar: MapScaleBar = DefaultMapScaleBar(mapView.map())
+                val mapScaleBarLayer = MapScaleBarLayer(mapView.map(), mapScaleBar)
+                mapScaleBarLayer.renderer.setPosition(GLViewport.Position.BOTTOM_LEFT)
+                mapScaleBarLayer.renderer.setOffset(5 * CanvasAdapter.getScale(), 0f)
+                mapView.map().layers().add(mapScaleBarLayer)
+
+                // Til source from maps
+                val tileSource = MultiMapFileTileSource()
+                maps.forEach {
+                    val map = MapFileTileSource()
+                    map.setMapFile(it)
+                    val result = tileSource.add(map)
+
+                    Log.d("VtmMapView", "Added map: $it with result: $result")
                 }
+
+                // Vector layer
+                val tileLayer: VectorTileLayer = mapView.map().setBaseMap(tileSource)
+
+                // Building layer
+                layers().add(BuildingLayer(mapView.map(), tileLayer))
+
+                // Label layer
+                layers().add(LabelLayer(mapView.map(), tileLayer))
+
+                // Render theme
+                setTheme(VtmThemes.DEFAULT)
+
+                // Initial position, scale and tilt
+                val mapPosition = this.mapPosition
+                mapPosition
+                    .setPosition(40.60092, -3.70806)
+                    .setScale((1 shl 19).toDouble())
+                    .setTilt(60.0f)
+                setMapPosition(mapPosition)
+                Log.d("VtmMapView", "Initial map position: ${this.mapPosition}")
+            }
+
+            mapView
+        },
+        modifier = modifier.fillMaxSize(),
+    ) { view ->
+        with(view.map()) {
+            location?.let { location ->
+                val mapPosition = this.mapPosition
+                mapPosition.setPosition(location.latitude, location.longitude)
+                mapPosition.setBearing(location.bearing)
+                this.animator().animateTo(mapPosition)
             }
         }
-    )
+    }
+}
+
+@Composable
+private fun rememberMapViewWithLifecycle(): MapView {
+    val context = LocalContext.current
+    val mapView = remember { MapView(context) }
+    val observer = remember { VtmMapViewLifecycleObserver(mapView) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    DisposableEffect(Unit) {
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+        }
+    }
+
+    return mapView
+}
+
+private class VtmMapViewLifecycleObserver(private val mapView: MapView) : DefaultLifecycleObserver {
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+        mapView.onResume()
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        mapView.onPause()
+
+
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+        mapView.onDestroy()
+    }
 }
 
 @Composable
@@ -379,21 +441,4 @@ fun CommandBarButton(
             tint = MaterialTheme.colorScheme.onSurface
         )
     }
-}
-
-@Composable
-private fun rememberMapViewWithLifecycle(): MapView {
-    val context = LocalContext.current
-    val mapView = remember { MapView(context) }
-    val observer = remember { MapsforgeMapViewLifecycleObserver(mapView) }
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-
-    DisposableEffect(Unit) {
-        lifecycle.addObserver(observer)
-        onDispose {
-            lifecycle.removeObserver(observer)
-        }
-    }
-
-    return mapView
 }

@@ -20,7 +20,6 @@ import org.giste.navigator.R
 import org.giste.navigator.model.Settings
 import org.giste.navigator.model.Trip
 import org.giste.navigator.ui.theme.NavigatorTheme
-import org.mapsforge.map.datastore.MapDataStore
 
 @Preview(
     name = "Tab Active 3",
@@ -34,8 +33,8 @@ fun NavigationLandscapePreview() {
             state = NavigationViewModel.UiState(trip = Trip(123456, 1234567)),
             onEvent = {},
             pdfState = LazyListState(),
-            map = null,
             settings = Settings(),
+            maps = listOf(),
         )
     }
 }
@@ -45,8 +44,8 @@ fun NavigationLandscapeScreen(
     state: NavigationViewModel.UiState,
     onEvent: (NavigationViewModel.UiAction) -> Unit,
     pdfState: LazyListState,
-    map: MapDataStore?,
     settings: Settings,
+    maps: List<String>,
     modifier: Modifier = Modifier,
 ) {
     val padding = 4.dp
@@ -85,7 +84,7 @@ fun NavigationLandscapeScreen(
                 HorizontalDivider()
                 Map(
                     location = state.location,
-                    map = map,
+                    map = maps,
                     modifier = Modifier
                         .weight(5f)
                         .padding(padding),

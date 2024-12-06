@@ -57,13 +57,13 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideMapRepository(@ApplicationContext context: Context): MapRepository {
-        return MapRepositoryImpl(context)
+    fun provideSettingsRepository(stateDataStore: DataStore<Preferences>): SettingsRepository {
+        return SettingsDataStoreRepository(stateDataStore)
     }
 
     @Singleton
     @Provides
-    fun provideSettingsRepository(stateDataStore: DataStore<Preferences>): SettingsRepository {
-        return SettingsDataStoreRepository(stateDataStore)
+    fun provideMapRepository(@ApplicationContext context: Context): MapRepository {
+        return MapLocalRepository(context)
     }
 }
