@@ -7,8 +7,6 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStoreFile
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -18,22 +16,22 @@ import org.giste.navigator.roadbook.RoadbookRepositoryImpl.Companion.ROADBOOK_PA
 import org.giste.navigator.roadbook.RoadbookRepositoryImpl.Companion.ROADBOOK_PAGE_OFFSET
 import org.giste.navigator.roadbook.RoadbookRepositoryImpl.Companion.ROADBOOK_URI
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.FileNotFoundException
-import java.io.IOException
 
 private const val TEST_DATASTORE: String = "test_datastore"
 
 class RoadbookRepositoryImplInstrumentedTests {
-    private val testContext: Context = ApplicationProvider.getApplicationContext()
-    private val testDataStore: DataStore<Preferences> =
-        PreferenceDataStoreFactory.create(
-            produceFile = { testContext.preferencesDataStoreFile(TEST_DATASTORE) }
-        )
-    private val pagingSourceFactory: PagingSourceFactory = FakePagingSourceFactory(50)
+    companion object {
+        private val testContext: Context = ApplicationProvider.getApplicationContext()
+        private val testDataStore: DataStore<Preferences> =
+            PreferenceDataStoreFactory.create(
+                produceFile = { testContext.preferencesDataStoreFile(TEST_DATASTORE) }
+            )
+    }
+
+    private val roadbookDatasource: RoadbookDatasource = FakeRoadbookDatasource(50)
 
     private lateinit var repository: RoadbookRepository
 
@@ -47,7 +45,7 @@ class RoadbookRepositoryImplInstrumentedTests {
         }
         repository = RoadbookRepositoryImpl(
             dataStore = testDataStore,
-            pagingSourceFactory = pagingSourceFactory,
+            roadbookDatasource = roadbookDatasource,
         )
     }
 
@@ -107,49 +105,19 @@ class RoadbookRepositoryImplInstrumentedTests {
         assertEquals(RoadbookScroll(2, 50), (result as RoadbookResult.Loaded).initialScroll)
     }
 
-    class FakePagingSourceFactory(private val pageCount: Int = 50) : PagingSourceFactory {
-        override fun createPagingSource(uri: String): PagingSource<Int, RoadbookPage> {
-            return FakePagingSource(pageCount)
+    class FakeRoadbookDatasource(private val pageCount: Int) : RoadbookDatasource {
+        override suspend fun loadRoadbook(uri: String) {
+
         }
 
-    }
-
-    class FakePagingSource(private val pageCount: Int) : PagingSource<Int, RoadbookPage>() {
-        override fun getRefreshKey(state: PagingState<Int, RoadbookPage>): Int? {
-            return 0
+        override fun getPageCount(): Int {
+            return pageCount
         }
 
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, RoadbookPage> {
-            val position = params.key ?: 0
-
-            try {
-                val bitmaps = this.loadPages(position, params.loadSize)
-                val prevKey = if (position == 0) {
-                    null
-                } else {
-                    safeStart(position - params.loadSize)
-                }
-                val nextKey = if ((position + params.loadSize) >= pageCount) {
-                    null
-                } else {
-                    safeEnd(position + params.loadSize)
-                }
-
-                return LoadResult.Page(bitmaps, prevKey, nextKey)
-
-            } catch (e: IOException) {
-                return LoadResult.Error(e)
-            } catch (e: SecurityException) {
-                return LoadResult.Error(e)
-            } catch (e: FileNotFoundException) {
-                return LoadResult.Error(e)
-            }
-        }
-
-        private fun loadPages(startPosition: Int, loadSize: Int): List<RoadbookPage> {
+        override suspend fun loadPages(startPosition: Int, loadSize: Int): List<RoadbookPage> {
             val pages = mutableListOf<RoadbookPage>()
 
-            for (index in startPosition until safeEnd(startPosition + loadSize)) {
+            for (index in startPosition until (startPosition + loadSize).coerceAtMost(pageCount)) {
                 pages.add(RoadbookPage(index, getBitmap()))
             }
 
@@ -159,13 +127,5 @@ class RoadbookRepositoryImplInstrumentedTests {
         private fun getBitmap(): Bitmap {
             return Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
         }
-
-        private fun safeStart(startPosition: Int): Int =
-            startPosition.coerceAtLeast(0)
-
-        private fun safeEnd(endPosition: Int): Int = endPosition.coerceAtMost(pageCount)
     }
-
-
-
 }

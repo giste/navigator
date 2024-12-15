@@ -17,11 +17,11 @@ import kotlinx.coroutines.withContext
 import org.giste.navigator.model.RoadbookScroll
 import javax.inject.Inject
 
-private const val CLASS_NAME = "RoadbookRepositoryImpl"
+private const val TAG = "RoadbookRepositoryImpl"
 
 class RoadbookRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val pagingSourceFactory: PagingSourceFactory,
+    private val roadbookDatasource: RoadbookDatasource,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : RoadbookRepository {
     companion object {
@@ -40,7 +40,7 @@ class RoadbookRepositoryImpl @Inject constructor(
                         config = PagingConfig(pageSize = 5),
                         initialKey = 0,
                     ) {
-                        pagingSourceFactory.createPagingSource(uri)
+                        RoadbookPagingSource(roadbookDatasource)
                     }.flow,
                     initialScroll = getScroll().first()
                 )
@@ -52,6 +52,8 @@ class RoadbookRepositoryImpl @Inject constructor(
         withContext(dispatcher) {
             // New roadbook, reset scroll
             saveScroll(RoadbookScroll())
+            // Load roadbook
+            roadbookDatasource.loadRoadbook(uri)
             // Save uri
             saveRoadbookUri(uri)
         }
@@ -59,7 +61,7 @@ class RoadbookRepositoryImpl @Inject constructor(
 
     override suspend fun saveScroll(scroll: RoadbookScroll) {
         dataStore.edit {
-            Log.v(CLASS_NAME, "setScroll(${scroll.pageIndex}, ${scroll.pageOffset})")
+            Log.v(TAG, "setScroll(${scroll.pageIndex}, ${scroll.pageOffset})")
 
             it[ROADBOOK_PAGE_INDEX] = scroll.pageIndex
             it[ROADBOOK_PAGE_OFFSET] = scroll.pageOffset
@@ -69,7 +71,7 @@ class RoadbookRepositoryImpl @Inject constructor(
     private fun getScroll(): Flow<RoadbookScroll> {
         return dataStore.data.map {
             Log.v(
-                CLASS_NAME,
+                TAG,
                 "getScroll = (${it[ROADBOOK_PAGE_INDEX]}, ${it[ROADBOOK_PAGE_OFFSET]})"
             )
             RoadbookScroll(
